@@ -273,27 +273,37 @@
             pointer-events: auto;
         }
 
-        /* 💡 新增：手機模擬通知訊息框 */
+        /* 【修正：高質感半透明版】手機模擬通知訊息框 */
         .phone-notification {
             position: absolute;
-            top: -100px; /* 預設藏在手機螢幕的最上方外側 */
+            top: -100px; 
             left: 5%;
             width: 90%;
-            background-color: rgba(255, 255, 255, 0.9); /* 半透明白色，像系統通知 */
-            backdrop-filter: blur(10px); /* 蘋果系統的毛玻璃毛邊效果 */
-            color: #333333;
+            
+            /* 🌸 核心修正：將透明度調低為 0.35 的輕透半透明白，完美露出底下的桌面與Icon */
+            background-color: rgba(255, 255, 255, 0.35); 
+            
+            /* ✨ 保留並加強蘋果系統的毛玻璃效果，讓透過去的背景帶有朦朧美 */
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px); /* 確保蘋果 iOS 手機瀏覽器也能完美呈現 */
+            
+            /* 🎨 核心修正：深灰色字體 */
+            color: #3a3a3a;
+            border: 1px solid rgba(255, 255, 255, 0.2); /* 加上極細的透明白邊框，增加立體感 */
+            
             padding: 12px 16px;
             box-sizing: border-box;
             border-radius: 18px;
-            box-shadow: 0px 8px 20px rgba(0,0,0,0.15);
-            z-index: 30; /* 層級非常高，必須蓋在所有畫面之上，甚至蓋在動態島附近 */
+            box-shadow: 0px 8px 25px rgba(0,0,0,0.2); /* 稍微加深陰影，讓透明氣泡更浮現 */
+            z-index: 30; 
             display: flex;
             align-items: center;
             font-size: 14px;
             font-family: "Microsoft JhengHei", sans-serif;
             font-weight: bold;
-            transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 帶有一點彈性的滑入動畫 */
+            transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
         }
+
         
         /* 當通知被激活動態滑下來時 */
         .phone-notification.show {
@@ -368,7 +378,7 @@
         }
 
         /* ============================================================ */
-        /* 1. CSS 樣式：雙層巢狀便利貼系統                               */
+        /* 1. CSS 樣式：雙層巢狀便利貼系統（完美還原最初版本）             */
         /* ============================================================ */
         
         /* 【全螢幕黑色半透明遮罩】用來把底下的手機主畫面變暗與模糊 */
@@ -395,18 +405,18 @@
             pointer-events: auto;
         }
 
-        /* 【白色透明色塊容器】放置便利貼的半透明白色大框框 */
+        /* 【第一層】半透明毛玻璃色塊主容器（還原最初版） */
         .sticky-wall-container {
             width: 88%;
-            max-height: 75%;
-            background-color: rgba(255, 255, 255, 0.2); /* 20%半透明白底（你要求的透明色塊） */
+            max-height: 75%;          /* 🌸 修正：換回最原始的 max-height，拒絕高度被鎖死 */
+            background-color: rgba(255, 255, 255, 0.2); 
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 24px;
-            padding: 20px 16px;
+            padding: 10px 40px 30px 35px;         /* 🌸 修正：換回原本最完美的 20px 內襯留白 */
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 15px;                 /* 🌸 修正：換回原本最舒服的 15px 元件間距 */
             box-shadow: 0 15px 35px rgba(0,0,0,0.3);
         }
 
@@ -417,26 +427,41 @@
             align-items: center;
             color: #ffffff;
         }
+
+        /* 【修正：白色半透明正確版】便利貼牆右上角的關閉按鈕 (✕) */
         .sticky-close-btn {
-            width: 28px;
-            height: 28px;
-            background-color: rgba(255, 255, 255, 0.25);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 16px;
+            width: 28px;              /* 鎖定 28px 寬 */
+            height: 28px;             /* 鎖定 28px 高 */
+            background-color: rgba(255, 255, 255, 0.25); 
+            color: #ffffff;
+            border-radius: 50%;       /* 完美的正圓形 */
+            
+            /* ⚡ 核心大絕招：強制按鈕內部的「x」字母在圓圈裡絕對水平、垂直雙置中 */
+            display: block;           /* 改為塊級元件以精準套用行高 */
+            line-height: 28px;        /* 💡 行高必須跟按鈕高度 28px 完全一樣，字體就會完美垂直置中 */
+            text-align: center;       /* 💡 讓字體完美水平置中 */
+            
+            font-size: 16px;          
             font-weight: bold;
             cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+            
+            /* ⚡ 核心防護：強行鎖定尺寸！不論旁邊的標題多長，都絕對不允許被擠壓變扁 */
+            flex-shrink: 0; 
+        }
+        .sticky-close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.4);
         }
 
-        /* 便利貼網格佈局：一列自動排兩張 */
+
+        /* 便利貼內部佈局網格（還原最初版） */
         .sticky-notes-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 14px;
-            overflow-y: auto;                     /* 💡 超過4張時，此區域會自動出現滾動條 */
-            padding: 5px;
+            overflow-y: auto;                     /* 超過4張時，此區域會自動出現滾動條 */
+            padding: 5px;    
         }
         
         /* 💡 針對只有1張便利貼（橘色按鈕）時的特殊置中加大樣式 */
@@ -444,6 +469,7 @@
             grid-template-columns: 1fr;
             justify-items: center;
         }
+
 
         /* 【便利貼小紙條本體】手寫便籤感樣式 */
         .sticky-note-card {
@@ -592,22 +618,30 @@
 
 
         /* 影片播放器右上角的圓形關閉按鈕 (✕) */
+        /* 【修正：完美正圓形＋絕對置中版】本地影片播放器的關閉按鈕 (✕) */
         .yt-close-btn {
             position: absolute;
-            top: -45px;                           /* 飄浮在影片盒子的正上方外側 */
+            top: -45px;                           
             right: 10px;
-            width: 32px;
-            height: 32px;
-            background-color: rgba(255, 255, 255, 0.25);
+            width: 28px;              
+            height: 28px;             
+            background-color: rgba(255, 255, 255, 0.25); 
             color: #ffffff;
             border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 18px;
+            
+            /* ⚡ 核心大絕招：強制影片按鈕內部的「x」字母絕對雙置中 */
+            display: block;
+            line-height: 28px;        /* 💡 行高跟高度完全相同，達成完美垂直置中 */
+            text-align: center;       /* 💡 達成完美水平置中 */
+            
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
+            user-select: none;
             transition: background 0.2s, transform 0.1s;
+            
+            /* ⚡ 核心防護：防止被擠壓變形 */
+            flex-shrink: 0; 
         }
         .yt-close-btn:hover {
             background-color: rgba(255, 255, 255, 0.4);
@@ -615,6 +649,8 @@
         .yt-close-btn:active {
             transform: scale(0.9);
         }
+
+
 
         /* ============================================================ */
         /* 1. CSS 樣式：📱 手機版專屬防擋網（自動避開三星底部導航列）     */
