@@ -617,56 +617,66 @@
         }
 
         /* ============================================================ */
-        /* 1. CSS 樣式：📱 手機版專屬微調防護網（自動根據設備調整）        */
+        /* 1. CSS 樣式：📱 手機版專屬完美平衡網（同時顯示背景與假手機）  */
         /* ============================================================ */
         @media screen and (max-width: 768px) {
             
-            /* 1. 調整全網頁大背景圖：在手機上自動置中、不拉伸變形 */
+            /* 1. 調整手機版全網頁大背景：讓它在直式手機上自動填滿、完美居中 */
             body {
                 background-position: center center !important; 
-                background-attachment: scroll; /* 防止部分手機瀏覽器背景因為滾動而發抖 */
+                background-size: cover !important; /* 確保大背景圖會填滿手機，不會留白 */
+                background-attachment: scroll;
+                
+                /* 💡 核心魔法：利用 flex 讓縮小後的假手機永遠處在網頁螢幕的正中央 */
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+                height: 100vh !important;
+                overflow: hidden !important;
             }
 
-            /* 2. 調整手機外框：在手機上把 13px 的大粗框與陰影拿掉，讓手機模擬器直接填滿螢幕 */
+            /* 2. ⚡ 核心縮放魔法：控制假手機在手機螢幕上的尺寸比例 */
             .phone-container {
-                width: 100vw !important;  /* 寬度強行 100% 填滿手機螢幕 */
-                height: 100vh !important; /* 高度強行 100% 填滿手機螢幕 */
-                border: none !important;  /* 拔除手機黑外框，因為朋友的手機本身就是外框了 */
-                border-radius: 0px !important; /* 拔除圓角 */
-                box-shadow: none !important;   /* 拔除陰影 */
+                /* 保持原本電腦版設定的 390x844 大小、邊框與陰影（不要拔除它們！） */
+                position: relative !important;
+                width: 390px !important; 
+                height: 844px !important; 
+                border: 13px solid #333 !important; 
+                border-radius: 40px !important;
+                box-shadow: 0px 20px 40px rgba(0,0,0,0.5) !important;
+                
+                /* 💡 終極大絕招：等比例縮放！
+                   0.85 代表讓整台手機（包含裡面的按鈕、文字）等比例縮小為原來的 85%。
+                   如果測試後覺得假手機還是太大，可以把 0.85 改成 0.8 或 0.75；
+                   如果覺得太小，可以改成 0.88。周圍就會空出完美的空間顯示大背景了！ */
+                transform: scale(0.82) !important; 
+                
+                /* 修正縮放後的定位基準點，讓它精準鎖定在螢幕正中央 */
+                transform-origin: center center !important; 
+                flex-shrink: 0 !important; /* 防止被瀏覽器彈性擠壓變形 */
             }
 
-            /* 3. 調整音樂控制盒：在手機上看原本 200px 的跑馬燈可能會太大，在手機上把它縮小一點 */
+            /* 3. 音樂控制盒：因為假手機縮小了，我們讓全網頁右上角的跑馬燈也稍微優雅縮小 */
             .music-control-box {
-                top: 50px !important;    /* 稍微往下移，避開手機系統本身的瀏海 */
-                right: 10px !important;
-                width: 130px !important; /* 寬度稍微縮小，看起來更精緻 */
+                top: 15px !important; /* 稍微往上靠，避免在小螢幕上太擠 */
+                right: 15px !important;
+                width: 140px !important; 
                 padding: 4px 8px !important;
             }
             .marquee-text {
-                font-size: 10px !important; /* 手機字體微調小一號，防止字體模糊 */
+                font-size: 10px !important;
             }
 
-            /* 4. 調整便利貼牆：手機畫面比較擠，讓便利貼的字體與間距更靈活 */
+            /* 4. 便利貼牆防護：維持在假手機內部的完美比例 */
             .sticky-wall-container {
-                width: 92% !important;   /* 讓半透明色塊在手機裡左右留白剛剛好 */
-                max-height: 80% !important;
-                padding: 15px 10px !important;
+                width: 88% !important;
+                max-height: 75% !important;
             }
             .sticky-note-card {
-                max-width: 110px !important; /* 稍微縮小每張便利貼的寬度，防止橫向塞不下 */
-                padding: 8px !important;
+                max-width: 130px !important;
             }
             .sticky-note-text {
-                font-size: 11px !important;  /* 手機看 11px 最精緻、最清晰 */
-            }
-            
-            /* 5. 調整通知訊息：讓彈出來的蘋果通知在手機頂部更符合比例 */
-            .phone-notification {
-                width: 92% !important;
-                left: 4% !important;
-                padding: 10px 14px !important;
-                font-size: 12px !important;
+                font-size: 13px !important;
             }
         }
 
