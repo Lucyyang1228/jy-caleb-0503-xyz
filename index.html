@@ -582,12 +582,14 @@
             position: relative;
         }
 
-        /* 讓內嵌的 iframe 完美填滿播放盒 */
-        .yt-video-container iframe {
+        /* 💡 修正：讓手機內建的實體影片自動縮放、完美填滿播放容器 */
+        .yt-video-container video {
             width: 100%;
             height: 100%;
-            border: none;
+            object-fit: contain; /* 確保影片比例完美不被拉伸變形 */
+            outline: none;
         }
+
 
         /* 影片播放器右上角的圓形關閉按鈕 (✕) */
         .yt-close-btn {
@@ -612,6 +614,60 @@
         }
         .yt-close-btn:active {
             transform: scale(0.9);
+        }
+
+        /* ============================================================ */
+        /* 1. CSS 樣式：📱 手機版專屬微調防護網（自動根據設備調整）        */
+        /* ============================================================ */
+        @media screen and (max-width: 768px) {
+            
+            /* 1. 調整全網頁大背景圖：在手機上自動置中、不拉伸變形 */
+            body {
+                background-position: center center !important; 
+                background-attachment: scroll; /* 防止部分手機瀏覽器背景因為滾動而發抖 */
+            }
+
+            /* 2. 調整手機外框：在手機上把 13px 的大粗框與陰影拿掉，讓手機模擬器直接填滿螢幕 */
+            .phone-container {
+                width: 100vw !important;  /* 寬度強行 100% 填滿手機螢幕 */
+                height: 100vh !important; /* 高度強行 100% 填滿手機螢幕 */
+                border: none !important;  /* 拔除手機黑外框，因為朋友的手機本身就是外框了 */
+                border-radius: 0px !important; /* 拔除圓角 */
+                box-shadow: none !important;   /* 拔除陰影 */
+            }
+
+            /* 3. 調整音樂控制盒：在手機上看原本 200px 的跑馬燈可能會太大，在手機上把它縮小一點 */
+            .music-control-box {
+                top: 50px !important;    /* 稍微往下移，避開手機系統本身的瀏海 */
+                right: 10px !important;
+                width: 130px !important; /* 寬度稍微縮小，看起來更精緻 */
+                padding: 4px 8px !important;
+            }
+            .marquee-text {
+                font-size: 10px !important; /* 手機字體微調小一號，防止字體模糊 */
+            }
+
+            /* 4. 調整便利貼牆：手機畫面比較擠，讓便利貼的字體與間距更靈活 */
+            .sticky-wall-container {
+                width: 92% !important;   /* 讓半透明色塊在手機裡左右留白剛剛好 */
+                max-height: 80% !important;
+                padding: 15px 10px !important;
+            }
+            .sticky-note-card {
+                max-width: 110px !important; /* 稍微縮小每張便利貼的寬度，防止橫向塞不下 */
+                padding: 8px !important;
+            }
+            .sticky-note-text {
+                font-size: 11px !important;  /* 手機看 11px 最精緻、最清晰 */
+            }
+            
+            /* 5. 調整通知訊息：讓彈出來的蘋果通知在手機頂部更符合比例 */
+            .phone-notification {
+                width: 92% !important;
+                left: 4% !important;
+                padding: 10px 14px !important;
+                font-size: 12px !important;
+            }
         }
 
 
@@ -714,8 +770,6 @@
             <div class="yt-video-container">
                 <!-- 右上角的獨立關閉按鈕 (✕) -->
                 <div class="yt-close-btn" onclick="closeYtPlayer()">×</div>
-                
-                /* 💡 這裡面保持全空，JavaScript 稍後會動態把 YouTube 影片塞進來 */
                 <div id="ytPlayerIframePlace"></div>
             </div>
         </div>
@@ -965,55 +1019,57 @@
         }
 
         // ============================================================
-        // 3. JavaScript 邏輯：手機內建 YouTube 播放器控制系統           
+        // 3. JavaScript 邏輯：手機內建本地實體影片播放系統           
         // ============================================================
         
-        // 💡 1. 在這裡設定您想要播放的 YouTube 影片「11碼英數代碼」
-        // 例如您的影片網址是 https://youtube.com，代碼就是 9s9o9XfG4uU
-        const youtubeVideoId = "9s9o9XfG4uU"; 
+        // 💡 1. 在這裡設定您準備好的影片檔案名稱（建議格式為 mp4）
+        const localVideoName = "my_video.mp4"; 
 
         const ytVideoBtn = document.getElementById('ytVideoBtn');
         const ytPlayerOverlay = document.getElementById('ytPlayerOverlay');
         const ytPlayerIframePlace = document.getElementById('ytPlayerIframePlace');
 
-        // 🎬 🟢 打開 YouTube 內建播放器（優化版：使用最乾淨的官方標準格式）
+        // 🎬 🟢 打開手機內建影片播放器
         ytVideoBtn.addEventListener('click', function(e) {
             e.stopPropagation(); // 防止點擊干擾到網頁其他元件
             
-            // 💡 精簡版內嵌網址：移除多餘參數，最符合網域安全性防護規範
+            // 💡 核心改動：改為動態生成網頁原生 <video> 標籤，並開啟 controls (進度條播放鍵) 方便操作
             ytPlayerIframePlace.innerHTML = `
-                <iframe src="https://youtube.com{youtubeVideoId}" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                        allowfullscreen>
-                </iframe>
+                <video id="phoneInnerVideo" src="${localVideoName}" controls autoplay></video>
             `;
             
-            // 💡 暫停原本的背景音樂 (bgm.mp3)，避免聲音重疊
+            // 💡 打開影片時，自動暫停背景音樂 (bgm.mp3)，避免聲音打架
             if (!bgMusic.paused) {
                 bgMusic.pause();
                 musicToggleBtn.textContent = '🔇';
                 marqueeText.style.animationPlayState = 'paused';
             }
 
-            // 顯示 YouTube 播放器圖層
+            // 顯示影片播放器遮罩層
             ytPlayerOverlay.classList.add('show');
         });
 
-
-        // ❌ 🔴 關閉 YouTube 內建播放器
+        // ❌ 🔴 關閉手機內建影片播放器
         function closeYtPlayer() {
-            // 💡 關鍵：直接將 iframe 徹底從網頁中移除清空！這樣影片就會百分之百「立刻中斷並完全安靜」，不會卡在背景繼續偷放聲音
+            // 抓取剛才生成的影片元件並將它暫停
+            const currentVideo = document.getElementById('phoneInnerVideo');
+            if (currentVideo) {
+                currentVideo.pause();
+            }
+            
+            // 💡 徹底將影片結構從網頁中拔除，確保背景完全安靜不偷放聲音
             ytPlayerIframePlace.innerHTML = "";
             
-            // 隱藏 YouTube 播放器圖層
+            // 隱藏影片播放器遮罩層
             ytPlayerOverlay.classList.remove('show');
             
-            // 💡 貼心優化：關閉影片後，自動把剛剛被暫停的網頁背景音樂 (bgm.mp3) 重新唱出來！
+            // 💡 貼心優化：影片關閉後，自動將原本的網頁背景音樂恢復播放！
             bgMusic.play().then(() => {
                 musicToggleBtn.textContent = '🔊';
                 marqueeText.style.animationPlayState = 'running';
             }).catch(e => console.log("重啟背景音樂遭攔截:", e));
         }
+
 
     </script>
 
