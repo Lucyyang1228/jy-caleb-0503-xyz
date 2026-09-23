@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
 
@@ -306,8 +306,334 @@
             margin-right: 10px;
         }
 
+        /* ================= 💡 新增：音樂控制區與跑馬燈樣式 ================= */
+        .music-control-box {
+            position: fixed; 
+            top: 25px;       
+            right: 25px;     
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 999;    
+            background-color: rgba(0, 0, 0, 0.45); 
+            padding: 6px 12px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px); 
+            width: 200px; 
+            overflow: hidden;
+            opacity: 0.65;   
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            
+            /* 💡 新增這行：讓滑鼠移到整個跑馬燈區塊時，都會變成可以點擊的小手 */
+            cursor: pointer; 
+        }
+        .music-control-box:hover {
+            opacity: 1; /* 滑鼠移上去時變清晰 */
+        }
+
+        /* 跑馬燈可視外框 */
+        .marquee-wrapper {
+            flex: 1;
+            overflow: hidden;
+            white-space: nowrap;
+            width: 100px; /* 固定跑馬燈寬度 */
+        }
+
+        /* 跑馬燈文字本體與無限滾動動畫 */
+        .marquee-text {
+            display: inline-block;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 11px;
+            font-weight: bold;
+            padding-left: 100%; /* 從最右側外面開始滑入 */
+            animation: marqueeEffect 10s linear infinite;
+        }
+
+        /* 跑馬燈動畫軌跡：從右到左無限循環 */
+        @keyframes marqueeEffect {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+
+        /* 喇叭按鈕樣式 */
+        .music-icon-btn {
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s ease;
+            color: #ffffff;
+        }
+        .music-icon-btn:active {
+            transform: scale(0.85); /* 點擊時縮放回饋 */
+        }
+
+        /* ============================================================ */
+        /* 1. CSS 樣式：雙層巢狀便利貼系統                               */
+        /* ============================================================ */
+        
+        /* 【全螢幕黑色半透明遮罩】用來把底下的手機主畫面變暗與模糊 */
+        .sticky-wall-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.65); /* 65%透明度的黑底 */
+            backdrop-filter: blur(8px);           /* 蘋果毛玻璃模糊特效 */
+            z-index: 40;                          /* 確保蓋在桌面圖示上 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;                           /* 預設隱形 */
+            pointer-events: none;                 /* 預設不可點擊，防止擋到桌面 */
+            transition: opacity 0.4s ease;        /* 0.4秒平滑淡入動畫 */
+        }
+        
+        /* 當 JavaScript 幫忙加上 .show 類別時就會顯示出來 */
+        .sticky-wall-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* 【白色透明色塊容器】放置便利貼的半透明白色大框框 */
+        .sticky-wall-container {
+            width: 88%;
+            max-height: 75%;
+            background-color: rgba(255, 255, 255, 0.2); /* 20%半透明白底（你要求的透明色塊） */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 24px;
+            padding: 20px 16px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        /* 標題與右上角 (×) 關閉按鈕的排版 */
+        .sticky-wall-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #ffffff;
+        }
+        .sticky-close-btn {
+            width: 28px;
+            height: 28px;
+            background-color: rgba(255, 255, 255, 0.25);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* 便利貼網格佈局：一列自動排兩張 */
+        .sticky-notes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            overflow-y: auto;                     /* 💡 超過4張時，此區域會自動出現滾動條 */
+            padding: 5px;
+        }
+        
+        /* 💡 針對只有1張便利貼（橘色按鈕）時的特殊置中加大樣式 */
+        .sticky-notes-grid.single-note {
+            grid-template-columns: 1fr;
+            justify-items: center;
+        }
+
+        /* 【便利貼小紙條本體】手寫便籤感樣式 */
+        .sticky-note-card {
+            width: 100%;
+            aspect-ratio: 1 / 1;                  /* 完美正方形 */
+            max-width: 130px;
+            padding: 12px;
+            box-sizing: border-box;
+            background-color: #fef08a;             /* 經典便利貼粉黃色 */
+            color: #334155;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.15);
+            transform: rotate(-1.5deg);           /* 微微向左傾斜，營造真實黏貼感 */
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-bottom-right-radius: 15px 3px; /* 💡 魔法細節：讓便籤右下角看起來微翹 */
+        }
+        
+        /* 💡 新增：四張便利貼時，各自獨立指派【黃、橘、粉、紫】四色與傾斜角度 */
+        
+        /* 🟡 第 1 張便利貼：原本的粉黃色（往左微傾斜） */
+        .sticky-note-card:nth-child(4n+1) {
+            background-color: #fff6c0; 
+            transform: rotate(-1.5deg);
+        }
+        
+        /* 🟠 第 2 張便利貼：原本的粉橘色（往右微傾斜） */
+        .sticky-note-card:nth-child(4n+2) {
+            background-color: #ffe9d4; 
+            transform: rotate(2deg);
+        }
+        
+        /* 🌸 第 3 張便利貼：新增的浪漫粉紅色（往左微傾斜） */
+        .sticky-note-card:nth-child(4n+3) {
+            background-color: #ffe9e9; /* 柔和粉紅色 */
+            transform: rotate(-2.5deg); /* 微調傾斜度，看起來更自然不呆板 */
+        }
+        
+        /* 🍇 第 4 張便利貼：新增的夢幻藍（往右微傾斜） */
+        .sticky-note-card:nth-child(4n+4) {
+            background-color: #e1f1ff; /* 柔和藍色 */
+            transform: rotate(1.5deg);
+        }
+
+        
+        /* 滑鼠懸停時微放大、立正，並加深陰影 */
+        .sticky-note-card:hover {
+            transform: scale(1.05) rotate(0deg);
+            box-shadow: 8px 8px 15px rgba(0, 0, 0, 0.25);
+            z-index: 2;
+        }
+        
+        .sticky-note-text {
+            font-size: 13px;
+            font-weight: bold;
+            line-height: 1.4;
+            word-break: break-all;
+        }
+        
+        .sticky-note-footer {
+            font-size: 10px;
+            text-align: right;
+            color: #64748b;
+        }
+
+          /* 【第二層】滿版展示大圖畫面層（💡 適應型：自動縮放不切圖） */
+        .sticky-gallery-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            
+            /* 📐 核心魔法：從 cover 改成 contain，照片會自動縮小到「完全看得見整張圖」為止 */
+            background-size: contain; 
+            
+            /* 💡 防止圖片因為太小而像磁磚一樣在手機裡重複拼貼 */
+            background-repeat: no-repeat; 
+            
+            background-position: center; /* 讓橫式圖片在直式手機裡上下置中 */
+            
+            /* 🎨 新增底色：橫式圖點開後，上下露出的空隙會自動補上質感黑底（也可以改成 #ffffff 白色） */
+            background-color: rgba(0, 0, 0, 0.7); 
+            
+            z-index: 45; 
+            opacity: 0;
+            transform: scale(0.9); 
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
+        }
+        
+        /* 當打開大圖時 */
+        .sticky-gallery-screen.show {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        /* ============================================================ */
+        /* 1. CSS 樣式：手機內建 YouTube 播放器系統                     */
+        /* ============================================================ */
+        
+        /* YouTube 播放器的全螢幕黑色半透明遮罩 */
+        .yt-player-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85); /* 較深的黑底，讓看影片更沉浸 */
+            backdrop-filter: blur(5px);
+            z-index: 50;                          /* 層級高於便利貼牆(40)與大圖層(45) */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;                           /* 預設隱形 */
+            pointer-events: none;                 /* 預設不可點擊 */
+            transition: opacity 0.4s ease;
+        }
+        
+        /* 當被 JavaScript 激活打開時 */
+        .yt-player-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* 影片播放盒容器（限制在直式手機寬度內，保持 16:9 比例） */
+        .yt-video-container {
+            width: 95%;
+            aspect-ratio: 16 / 9;                 /* 完美的 YouTube 影片標準比例 */
+            background-color: #000000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        /* 讓內嵌的 iframe 完美填滿播放盒 */
+        .yt-video-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* 影片播放器右上角的圓形關閉按鈕 (✕) */
+        .yt-close-btn {
+            position: absolute;
+            top: -45px;                           /* 飄浮在影片盒子的正上方外側 */
+            right: 10px;
+            width: 32px;
+            height: 32px;
+            background-color: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .yt-close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        .yt-close-btn:active {
+            transform: scale(0.9);
+        }
+
+
     </style>
 </head>
+
+    </div>
+
+    <!-- ================= 💡 修正後：放在手機外、網頁視窗右上角的音樂控制組件 ================= -->
+    <audio id="bgMusic" src="bgm.mp3" loop></audio>
+
+    <div class="music-control-box">
+        <div class="marquee-wrapper">
+            <!-- 🎵 在這裡修改您想顯示的歌曲名稱 -->
+            <div class="marquee-text">🎵 正在播放：深空絮語《飛鳥回還日：無盡夏》 </div>
+        </div>
+        <div id="musicToggleBtn" class="music-icon-btn">🔊</div>
+    </div>
+
+</body>
+</html>
+
 <body>
 
     <!-- 手機外框 -->
@@ -324,20 +650,21 @@
         <!-- ================= 主畫面 ================= -->
         <div class="home-screen">
             <!-- 各個可點擊的 Icon 熱區：這裡維持你原本設定的 <a> 標籤和網頁連結 -->
-            <a href="https://www.youtube.com/watch?app=desktop&v=9s9o9XfG4uU" target="_blank" class="clickable-icon icon-star" title="♥"></a>
+            <div class="clickable-icon icon-star" id="ytVideoBtn" title="♥"></div>
             <a href="https://loveanddeepspace.infoldgames.com/zh-TW/home#1" target="_blank" class="clickable-icon icon-caleb" title="★"></a>
             <div class="clickable-icon icon-calendar" id="widgetCalendar" title="✧*｡٩(ˊᗜˋ*)و✧*｡"></div>
-            <div class="clickable-icon icon-apple-red" id="appleRedBtn" title="夏以晝"></div>
+            <div class="clickable-icon icon-apple-red" id="appleRedBtn" title="夏以晝大笨蛋"></div>
             <div class="clickable-icon icon-apple-green" id="appleGreenBtn" title="小蘋果"></div>
 
             <!-- 大小組件：💡 這裡改成了 <div>，並加上特殊的 id，用於觸發手機內部切換畫面 -->
-            <div class="clickable-icon widget-top-right" id="widgetTopRight" title="寵我的夏以晝"></div>
-            <div class="clickable-icon widget-bottom-left" id="widgetBottomLeft" title="生氣的夏以晝"></div>
+            <div class="clickable-icon widget-top-right" id="widgetTopRight" title="🧡✨🍎🍏"></div>
+            <div class="clickable-icon widget-bottom-left" id="widgetBottomLeft" title="哥~哥，不要生氣嘛"></div>
 
             <!-- 最底部的三個快捷鍵 -->
-            <a href="grad.html" class="clickable-icon dock-orange" title="Happy Graduation"></a>
-            <a href="wish.html" class="clickable-icon dock-red" title="Best Wish"></a>
-            <a href="members.html" class="clickable-icon dock-green" title="TP Members"></a>
+            <!-- 💡 點擊時會分別把 'orange', 'red', 'green' 的識別字丟進 JavaScript 裡 -->
+            <div class="clickable-icon dock-orange" onclick="openStickyWall('orange')" title="Happy Graduation"></div>
+            <div class="clickable-icon dock-red" onclick="openStickyWall('red')" title="Best Wish"></div>
+            <div class="clickable-icon dock-green" onclick="openStickyWall('green')" title="TP Members"></div>
         </div>
 
         <!-- ================= 💡 新增：獨立的大圖畫面層 ================= -->
@@ -358,82 +685,97 @@
             <span class="noti-text">夏以晝：不要偷看！</span>
         </div>
 
+        <!-- ============================================================ -->
+        <!-- 2. HTML 結構：雙層巢狀便利貼系統                             -->
+        <!-- ============================================================ -->
+        
+        <!-- 【第一層結構】便利貼牆大框架 -->
+        <div class="sticky-wall-overlay" id="stickyWallOverlay">
+            <div class="sticky-wall-container">
+                <div class="sticky-wall-header">
+                    <h3 id="stickyWallTitle">便利貼牆</h3>
+                    <div class="sticky-close-btn" onclick="closeStickyWall()">×</div>
+                </div>
+                <!-- 💡 這裡面保持全空，JavaScript 稍後會自動動態產生紙條並塞進來 -->
+                <div class="sticky-notes-grid" id="stickyNotesGrid"></div>
+            </div>
+        </div>
+
+        <!-- 【第二層結構】便利貼專屬的內層滿版大圖層 -->
+        <div class="sticky-gallery-screen" id="stickyGalleryScreen">
+            <!-- 左上角返回鍵：點擊退回上一頁（即第一層便利貼牆） -->
+            <div class="gallery-back-btn" onclick="closeStickyGallery()">←</div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- 2. HTML 結構：手機內建 YouTube 播放器系統                     -->
+        <!-- ============================================================ -->
+        <div class="yt-player-overlay" id="ytPlayerOverlay">
+            <div class="yt-video-container">
+                <!-- 右上角的獨立關閉按鈕 (✕) -->
+                <div class="yt-close-btn" onclick="closeYtPlayer()">×</div>
+                
+                /* 💡 這裡面保持全空，JavaScript 稍後會動態把 YouTube 影片塞進來 */
+                <div id="ytPlayerIframePlace"></div>
+            </div>
+        </div>
+
     </div>
 
     <!-- JavaScript：控制點擊解鎖與大圖切換的行為 -->
     <script>
+        // ============================================================
+        // 核心 1：基礎手機面板解鎖與相簿切換邏輯（維持您原本完美的設定）
+        // ============================================================
         const unlockBtn = document.getElementById('unlockBtn');
         const lockScreen = document.getElementById('lockScreen');
-
-        // 當點擊左下角蘋果時，觸發解鎖
-        unlockBtn.addEventListener('click', function() {
-            lockScreen.classList.add('unlocked'); // 讓鎖定畫面滑開並淡出
-        });
-
-        // 💡 大圖切換與返回的動作邏輯
         const widgetTopRight = document.getElementById('widgetTopRight');
         const widgetBottomLeft = document.getElementById('widgetBottomLeft');
         const galleryScreen = document.getElementById('galleryScreen');
         const galleryBackBtn = document.getElementById('galleryBackBtn');
-
-        // 1. 點擊右上擁抱組件 ➔ 滿版切換成第一張大圖
-        widgetTopRight.addEventListener('click', function() {
-        galleryScreen.style.backgroundImage = "url('gallery1.png')"; // 👈 請確保圍裙擁抱圖命名為 gallery1.png
-        galleryScreen.classList.add('show');
-        });
-
-        // 2. 點擊左下摸頭組件 ➔ 滿版切換成第二張大圖
-        widgetBottomLeft.addEventListener('click', function() {
-        galleryScreen.style.backgroundImage = "url('gallery2.png')"; // 👈 請確保西裝摸頭圖命名為 gallery2.png
-        galleryScreen.classList.add('show');
-        });
-
-        // 3. 點擊大圖左上角的「✕」返回鍵 ➔ 退出大圖層，退回主畫面讓你繼續點其他按鈕
-        galleryBackBtn.addEventListener('click', function() {
-        galleryScreen.classList.remove('show');
-        });
-
-        /* 💡 新增：日曆大圖切換與返回邏輯 */
         const widgetCalendar = document.getElementById('widgetCalendar');
         const calendarScreen = document.getElementById('calendarScreen');
         const calendarBackBtn = document.getElementById('calendarBackBtn');
 
-        // 點擊日曆 ICON ➔ 滿版切換成日曆放大圖
+        unlockBtn.addEventListener('click', function() {
+            lockScreen.classList.add('unlocked');
+        });
+
+        widgetTopRight.addEventListener('click', function() {
+            galleryScreen.style.backgroundImage = "url('gallery1.png')";
+            galleryScreen.classList.add('show');
+        });
+
+        widgetBottomLeft.addEventListener('click', function() {
+            galleryScreen.style.backgroundImage = "url('gallery2.png')";
+            galleryScreen.classList.add('show');
+        });
+
+        galleryBackBtn.addEventListener('click', function() {
+            galleryScreen.classList.remove('show');
+        });
+
         widgetCalendar.addEventListener('click', function() {
-            calendarScreen.style.backgroundImage = "url('calendar_large.png')"; // 👈 💡 請準備一張放大的日曆照片，命名為 calendar_large.png 放到資料夾
+            calendarScreen.style.backgroundImage = "url('calendar_large.png')";
             calendarScreen.classList.add('show');
         });
 
-        // 點擊日曆大圖的「✕」返回鍵 ➔ 退回主畫面
         calendarBackBtn.addEventListener('click', function() {
             calendarScreen.classList.remove('show');
         });
 
-        /* 💡 三階段循環升級版：紅蘋果與青蘋果各自獨立輪流跳三句話 */
+        // 蘋果循環通知
         const appleRedBtn = document.getElementById('appleRedBtn');
         const appleGreenBtn = document.getElementById('appleGreenBtn');
         const phoneNotification = document.getElementById('phoneNotification');
         const notiText = phoneNotification.querySelector('.noti-text'); 
-        
         let notiTimeout;
 
-        // 🍎 1. 定義紅蘋果要跳的三句話列表，以及它的專屬計數器
-        const redMessages = [
-            '夏以晝是我的！',
-            '不要偷看我哥哥！',
-            '😠' // 👈 💡 這裡可以自由修改或新增第三句話的內容
-        ];
-        let redIndex = 0; // 記錄紅蘋果現在點到第幾句
+        const redMessages = ['夏以晝是我的！', '不要偷看我哥哥！', '😠'];
+        let redIndex = 0;
+        const greenMessages = ['不要偷看我妹妹！', '😠', '😡😡😡'];
+        let greenIndex = 0;
 
-        // 🍏 2. 定義青蘋果要跳的三句話列表，以及它的專屬計數器
-        const greenMessages = [
-            '不要偷看我妹妹！',
-            '😠',
-            '😡😡😡' // 👈 💡 這裡可以自由修改或新增第三句話的內容
-        ];
-        let greenIndex = 0; // 記錄青蘋果現在點到第幾句
-
-        // 核心彈出通知功能（維持你原本完美的動態與 3 秒消失設定）
         function triggerNotification(text) {
             clearTimeout(notiTimeout);
             notiText.textContent = text;
@@ -443,51 +785,238 @@
             }, 3000);
         }
 
-        // 🍎 點擊「紅蘋果」➔ 照順序無限循環跳三句話
         appleRedBtn.addEventListener('click', function() {
-            // 抓出當前該顯示的那句話
             triggerNotification(redMessages[redIndex]);
-            
-            // 💡 計數器加 1，並且用 % 限制在 0, 1, 2 之間循環
             redIndex = (redIndex + 1) % redMessages.length;
         });
 
-        // 🍏 點擊「青蘋果」➔ 照順序無限循環跳另外三句話
         appleGreenBtn.addEventListener('click', function() {
-            // 抓出當前該顯示的那句話
             triggerNotification(greenMessages[greenIndex]);
-            
-            // 💡 計數器加 1，並且用 % 限制在 0, 1, 2 之間循環
             greenIndex = (greenIndex + 1) % greenMessages.length;
         });
 
-        /* 🔒 獨立新增：全網頁手機密碼防護牆 */
-        window.addEventListener('DOMContentLoaded', function() {
-            // 💡 1. 在這裡設定你想要的密碼（目前設定為0503，你可以自由修改括號內的數字）
-            const correctPassword = "0503"; 
+
+        // ============================================================
+        // 核心 2：🔊 獨立運作的音樂與跑馬燈控制區（整個大框框皆可點擊）
+        // ============================================================
+        const bgMusic = document.getElementById('bgMusic');
+        
+        // 💡 新增這行：設定音量大小為 30%（0.3），您可以自由修改這個數字
+        bgMusic.volume = 0.3; 
+        
+        const musicToggleBtn = document.getElementById('musicToggleBtn');
+        const marqueeText = document.querySelector('.marquee-text');
+        const musicControlBox = document.querySelector('.music-control-box'); 
+
+        // 💡 點擊「整個音樂控制盒（跑馬燈+喇叭）」➔ 切換 播放/靜音 狀態
+        musicControlBox.addEventListener('click', function(e) {
+            e.stopPropagation(); // 防止點擊事件干擾到網頁其他元件
+            console.log("整個音樂盒被點擊了！目前播放狀態為:", bgMusic.paused);
             
-            // 彈出密碼輸入框
-            let enterPassword = prompt("【系統安全驗證】\n請輸入訪問密碼以啟用手機模擬器：");
-            
-            // 2. 如果使用者密碼輸入錯誤，或者按了取消，就一直卡住不給看
-            while (enterPassword !== correctPassword) {
-                if (enterPassword === null) {
-                    // 使用者按了取消
-                    document.body.innerHTML = `
-                        <div style="background-color:#121212; color:#ef4444; text-align:center; padding-top:20vh; height:100vh; font-family:sans-serif;">
-                            <h1 style="font-size:48px;">🔒 訪問已被拒絕</h1>
-                            <p style="color:#888; font-size:18px; margin-top:20px;">您必須輸入正確的訪問密碼才能檢視此網站內容。</p>
-                        </div>
-                    `;
-                    break;
-                }
-                // 使用者輸入錯誤，彈出警告並讓他重新輸入
-                enterPassword = prompt("❌ 密碼錯誤！請重新輸入正確的密碼：");
+            if (bgMusic.paused) {
+                bgMusic.play().then(() => {
+                    musicToggleBtn.textContent = '🔊';
+                    marqueeText.style.animationPlayState = 'running'; // 跑馬燈繼續滾動
+                }).catch(err => {
+                    console.log("播放失敗，可能需要先點擊網頁任意地方:", err);
+                });
+            } else {
+                bgMusic.pause();
+                musicToggleBtn.textContent = '🔇'; // 切換為靜音符號
+                marqueeText.style.animationPlayState = 'paused'; // 點擊靜音時字會停下
             }
         });
 
+
+        // ============================================================
+        // 核心 3：🔒 全網頁手機密碼防護牆（雙重防線：完美破解自動播放攔截）
+        // ============================================================
+        window.addEventListener('DOMContentLoaded', function() {
+            const correctPassword = "0503"; 
+            let enterPassword = prompt("【芝麻開門】\n請輸入通關密語以進入深空：");
+            
+            while (enterPassword !== correctPassword) {
+                if (enterPassword === null) {
+                    document.body.innerHTML = `
+                        <div style="background-color:#121212; color:#ef4444; text-align:center; padding-top:30vh; width:100vw; height:100vh; font-family:sans-serif; position:fixed; top:0; left:0; z-index:99999;">
+                            <h1 style="font-size:48px; margin-bottom:10px;">🔒 訪問已被拒絕</h1>
+                            <p style="color:#888; font-size:18px; margin-top:20px;">您必須輸入正確的通關密語才能進入深空。</p>
+                        </div>
+                    `;
+                    return; 
+                }
+                enterPassword = prompt("❌ 通關密語錯誤！提示：夏以晝最喜歡的人的生日：");
+            }
+            
+            // 🔓 密碼輸入正確後
+            console.log("🔓 歡迎進入深空！");
+            
+            // 【第一防線】嘗試在按下密碼確定的瞬間直接播放音樂
+            bgMusic.play().then(() => {
+                musicToggleBtn.textContent = '🔊';
+                marqueeText.style.animationPlayState = 'running';
+                console.log("🔊 成功！瀏覽器允許直接播放音樂。");
+            }).catch(function(error) {
+                console.log("⚠️ 第一防線遭攔截！改為啟動【第二防線】：等待使用者觸碰網頁螢幕...");
+                
+                // 【第二防線】完美隱形捕捉：只要使用者在網頁上隨便點任何地方，就立刻喚醒音樂！
+                // { once: true } 確保這個補償機制觸發一次後就自動功成身退，不會影響後續點擊。
+                document.body.addEventListener('click', function() {
+                    if (bgMusic.paused) {
+                        bgMusic.play().then(() => {
+                            musicToggleBtn.textContent = '🔊';
+                            marqueeText.style.animationPlayState = 'running';
+                            console.log("🔊 成功！透過使用者觸碰網頁畫面，強制喚醒背景音樂。");
+                        }).catch(e => console.log("喚醒失敗:", e));
+                    }
+                }, { once: true });
+            });
+        });
+
+        // ============================================================
+        // 3. JavaScript 邏輯：雙層巢狀便利貼與大圖切換核心邏輯            
+        // ============================================================
+        
+        // 📂 【設定資料庫】未來要修改便籤文字、或換照片，直接改這區最快！
+        const stickyData = {
+            orange: {
+                title: "Happy Graduation 🎓",
+                notes: [
+                    { text: "畢業快樂！未來也要一起走下去呀✨", image: "orange_bg.png" } // 👈 1張便利貼
+                ]
+            },
+            red: {
+                title: "Best Wish ❤️",
+                notes: [
+                    { text: "許個願吧！希望每天都能見到你🥰", image: "red_pic1.png" }, // 👈 4張便利貼與各自大圖
+                    { text: "跟你在一起的時光，連空氣都是甜的", image: "red_pic2.png" },
+                    { text: "這是屬於我們的秘密基地🔒", image: "red_pic3.png" },
+                    { text: "今天也是超級喜歡你的一天！", image: "red_pic4.png" }
+                ]
+            },
+            green: {
+                title: "From TP Members 👥",
+                notes: [
+                    { text: "聚會紀念！第一張合照留念📸", image: "cake.png" },      // 👈 包含你的吃蛋糕聚會照
+                    { text: "與大家度過的美好慶生派對🍰", image: "green_pic2.png" },
+                    { text: "核心成員報到！悄悄話板面", image: "green_pic3.png" },
+                    { text: "期待下一次的深空冒險旅程🚀", image: "green_pic4.png" }
+                ]
+            }
+        };
+
+        // 綁定網頁上的 HTML 標籤元件
+        const stickyWallOverlay = document.getElementById('stickyWallOverlay');
+        const stickyWallTitle = document.getElementById('stickyWallTitle');
+        const stickyNotesGrid = document.getElementById('stickyNotesGrid');
+        const stickyGalleryScreen = document.getElementById('stickyGalleryScreen');
+
+        // 🟢 打開【第一層】：自動鋪設並開啟便利貼牆面
+        function openStickyWall(type) {
+            const data = stickyData[type]; // 抓出對應顏色的資料包
+            if (!data) return;
+
+            stickyWallTitle.textContent = data.title; // 換上標題文字
+            stickyNotesGrid.innerHTML = "";           // 💡 清空上一次殘留的舊紙條
+
+            // 如果只有1張便利貼（橘色），套用單張置中的 CSS 排版
+            if (data.notes.length === 1) {
+                stickyNotesGrid.classList.add('single-note');
+            } else {
+                stickyNotesGrid.classList.remove('single-note');
+            }
+
+            // 用迴圈把資料庫裡的每條文字，做成實體小黃紙條丟進網頁
+            data.notes.forEach((note, index) => {
+                const noteCard = document.createElement('div');
+                noteCard.className = 'sticky-note-card';
+                
+                // 設定點擊紙條動作：傳入綁定的照片檔名，開啟【第二層大圖】
+                noteCard.onclick = function() {
+                    openStickyGallery(note.image);
+                };
+
+                // 置入便利貼文字與編號
+                noteCard.innerHTML = `
+                    <div class="sticky-note-text">${note.text}</div>
+                    <div class="sticky-note-footer">#${index + 1} 📌</div>
+                `;
+                stickyNotesGrid.appendChild(noteCard);
+            });
+
+            // 加上 .show 類別，讓便利貼牆面平滑淡入登場
+            stickyWallOverlay.classList.add('show');
+        }
+
+        // 🔴 關閉【第一層】：點擊大 (×) 鈕，徹底退出牆面回到手機桌面
+        function closeStickyWall() {
+            stickyWallOverlay.classList.remove('show');
+        }
+
+        // 🖼️ 打開【第二層】：進入滿版大圖展示
+        function openStickyGallery(imagePath) {
+            stickyGalleryScreen.style.backgroundImage = `url('${imagePath}')`; // 更換背景圖檔名
+            stickyGalleryScreen.classList.add('show');                        // 照片从小放大滑入
+        }
+
+        // 🔙 關閉【第二層】：在大圖時點擊返回鍵 ➔ 只關閉大圖，安全回到【第一層便利貼牆】
+        function closeStickyGallery() {
+            stickyGalleryScreen.classList.remove('show');
+        }
+
+        // ============================================================
+        // 3. JavaScript 邏輯：手機內建 YouTube 播放器控制系統           
+        // ============================================================
+        
+        // 💡 1. 在這裡設定您想要播放的 YouTube 影片「11碼英數代碼」
+        // 例如您的影片網址是 https://youtube.com，代碼就是 9s9o9XfG4uU
+        const youtubeVideoId = "9s9o9XfG4uU"; 
+
+        const ytVideoBtn = document.getElementById('ytVideoBtn');
+        const ytPlayerOverlay = document.getElementById('ytPlayerOverlay');
+        const ytPlayerIframePlace = document.getElementById('ytPlayerIframePlace');
+
+        // 🎬 🟢 打開 YouTube 內建播放器
+        ytVideoBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // 防止點擊干擾到網頁其他元件
+            
+            // 💡 特效技巧：動態生成 iframe 塞入網頁，並且開啟「自動播放(autoplay=1)」與「音量不靜音(mute=0)」
+            // &enablejsapi=1 允許我們未來用程式控制它
+            ytPlayerIframePlace.innerHTML = `
+                <iframe src="https://youtube.com{youtubeVideoId}?autoplay=1&mute=0&enablejsapi=1" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                </iframe>
+            `;
+            
+            // 💡 如果此時背景音樂 (bgm.mp3) 正在播放，先幫它暫停，才不會跟影片聲音撞在一起！
+            if (!bgMusic.paused) {
+                bgMusic.pause();
+                musicToggleBtn.textContent = '🔇';
+                marqueeText.style.animationPlayState = 'paused';
+            }
+
+            // 顯示 YouTube 播放器圖層
+            ytPlayerOverlay.classList.add('show');
+        });
+
+        // ❌ 🔴 關閉 YouTube 內建播放器
+        function closeYtPlayer() {
+            // 💡 關鍵：直接將 iframe 徹底從網頁中移除清空！這樣影片就會百分之百「立刻中斷並完全安靜」，不會卡在背景繼續偷放聲音
+            ytPlayerIframePlace.innerHTML = "";
+            
+            // 隱藏 YouTube 播放器圖層
+            ytPlayerOverlay.classList.remove('show');
+            
+            // 💡 貼心優化：關閉影片後，自動把剛剛被暫停的網頁背景音樂 (bgm.mp3) 重新唱出來！
+            bgMusic.play().then(() => {
+                musicToggleBtn.textContent = '🔊';
+                marqueeText.style.animationPlayState = 'running';
+            }).catch(e => console.log("重啟背景音樂遭攔截:", e));
+        }
+
     </script>
+
 
 </body>
 </html>
-
