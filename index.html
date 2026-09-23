@@ -617,27 +617,31 @@
         }
 
         /* ============================================================ */
-        /* 1. CSS 樣式：📱 手機版專屬完美平衡網（同時顯示背景與假手機）  */
+        /* 1. CSS 樣式：📱 手機版專屬防擋網（自動避開三星底部導航列）     */
         /* ============================================================ */
         @media screen and (max-width: 768px) {
             
-            /* 1. 調整手機版全網頁大背景：讓它在直式手機上自動填滿、完美居中 */
+            /* 1. 調整手機版全網頁大背景 */
             body {
                 background-position: center center !important; 
-                background-size: cover !important; /* 確保大背景圖會填滿手機，不會留白 */
+                background-size: cover !important; 
                 background-attachment: scroll;
                 
-                /* 💡 核心魔法：利用 flex 讓縮小後的假手機永遠處在網頁螢幕的正中央 */
                 display: flex !important;
                 justify-content: center !important;
                 align-items: center !important;
-                height: 100vh !important;
+                
+                /* 💡 核心魔法一：改成 100dvh，動態扣除三星導航列高度 */
+                height: 100dvh !important;
                 overflow: hidden !important;
+                
+                /* 💡 核心魔法二：上下安全留白緩衝，把假手機往上提 */
+                padding: 15px 0 !important;
+                box-sizing: border-box !important;
             }
 
-            /* 2. ⚡ 核心縮放魔法：控制假手機在手機螢幕上的尺寸比例 */
+            /* 2. 物理縮放控制 */
             .phone-container {
-                /* 保持原本電腦版設定的 390x844 大小、邊框與陰影（不要拔除它們！） */
                 position: relative !important;
                 width: 390px !important; 
                 height: 844px !important; 
@@ -645,20 +649,16 @@
                 border-radius: 40px !important;
                 box-shadow: 0px 20px 40px rgba(0,0,0,0.5) !important;
                 
-                /* 💡 終極大絕招：等比例縮放！
-                   0.85 代表讓整台手機（包含裡面的按鈕、文字）等比例縮小為原來的 85%。
-                   如果測試後覺得假手機還是太大，可以把 0.85 改成 0.8 或 0.75；
-                   如果覺得太小，可以改成 0.88。周圍就會空出完美的空間顯示大背景了！ */
-                transform: scale(0.82) !important; 
+                /* 💡 縮放微調為 0.78，讓整台手機稍微變小、完美懸浮 */
+                transform: scale(0.78) !important; 
                 
-                /* 修正縮放後的定位基準點，讓它精準鎖定在螢幕正中央 */
                 transform-origin: center center !important; 
-                flex-shrink: 0 !important; /* 防止被瀏覽器彈性擠壓變形 */
+                flex-shrink: 0 !important; 
             }
 
-            /* 3. 音樂控制盒：因為假手機縮小了，我們讓全網頁右上角的跑馬燈也稍微優雅縮小 */
+            /* 3. 音樂控制盒：配合新版高度微調 */
             .music-control-box {
-                top: 15px !important; /* 稍微往上靠，避免在小螢幕上太擠 */
+                top: 15px !important; 
                 right: 15px !important;
                 width: 140px !important; 
                 padding: 4px 8px !important;
@@ -667,7 +667,7 @@
                 font-size: 10px !important;
             }
 
-            /* 4. 便利貼牆防護：維持在假手機內部的完美比例 */
+            /* 4. 便利貼牆防護 */
             .sticky-wall-container {
                 width: 88% !important;
                 max-height: 75% !important;
@@ -678,7 +678,8 @@
             .sticky-note-text {
                 font-size: 13px !important;
             }
-        }
+        } /* 👈 這是新大括號結束的地方 */
+
 
 
     </style>
