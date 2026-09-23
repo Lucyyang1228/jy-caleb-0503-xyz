@@ -651,9 +651,8 @@
         }
 
 
-
         /* ============================================================ */
-        /* 1. CSS 樣式：📱 手機版專屬防擋網（自動避開三星底部導航列）     */
+        /* 1. CSS 樣式：📱 手機版專屬防擋網（合體完全體：完美保留便利貼＋極致避擋） */
         /* ============================================================ */
         @media screen and (max-width: 768px) {
             
@@ -671,8 +670,9 @@
                 height: 100dvh !important;
                 overflow: hidden !important;
                 
-                /* 💡 核心魔法二：上下安全留白緩衝，把假手機往上提 */
-                padding: 15px 0 !important;
+                /* 💡 核心修改一：把底部的留白緩衝（第三個數字）從 0 像素放大到 45px！
+                   這道隱形的牆會強行把假手機從最底端往上推高，徹底脫離三星按鈕的干擾 */
+                padding: 15px 0 45px 0 !important;
                 box-sizing: border-box !important;
             }
 
@@ -685,8 +685,9 @@
                 border-radius: 40px !important;
                 box-shadow: 0px 20px 40px rgba(0,0,0,0.5) !important;
                 
-                /* 💡 縮放微調為 0.78，讓整台手機稍微變小、完美懸浮 */
-                transform: scale(0.78) !important; 
+                /* 💡 核心修改二：將物理縮放比例從 0.78 微調縮小到 0.74！
+                   讓整台手機稍微變精巧一點，配合底部的推力，就能完美在三星按鈕上方懸浮 */
+                transform: scale(0.74) !important; 
                 
                 transform-origin: center center !important; 
                 flex-shrink: 0 !important; 
@@ -703,10 +704,13 @@
                 font-size: 10px !important;
             }
 
-            /* 4. 便利貼牆防護 */
+            /* 4. 🌸 完美保留：便利貼牆防護（再也不會因為覆蓋而失效了！） */
             .sticky-wall-container {
                 width: 88% !important;
-                max-height: 75% !important;
+                /* 💡 核心修改三：配合假手機微縮，把手機版的大色塊最高高度從 75% 稍微調勻到 72% */
+                max-height: 72% !important;
+                padding: 20px 16px !important;
+                box-sizing: border-box !important;
             }
             .sticky-note-card {
                 max-width: 130px !important;
@@ -714,8 +718,7 @@
             .sticky-note-text {
                 font-size: 13px !important;
             }
-        } /* 👈 這是新大括號結束的地方 */
-
+        } /* 👈 媒體查詢大括號安全結束 */
 
 
     </style>
