@@ -976,20 +976,19 @@
         const ytPlayerOverlay = document.getElementById('ytPlayerOverlay');
         const ytPlayerIframePlace = document.getElementById('ytPlayerIframePlace');
 
-        // 🎬 🟢 打開 YouTube 內建播放器
+        // 🎬 🟢 打開 YouTube 內建播放器（優化版：使用最乾淨的官方標準格式）
         ytVideoBtn.addEventListener('click', function(e) {
             e.stopPropagation(); // 防止點擊干擾到網頁其他元件
             
-            // 💡 特效技巧：動態生成 iframe 塞入網頁，並且開啟「自動播放(autoplay=1)」與「音量不靜音(mute=0)」
-            // &enablejsapi=1 允許我們未來用程式控制它
+            // 💡 精簡版內嵌網址：移除多餘參數，最符合網域安全性防護規範
             ytPlayerIframePlace.innerHTML = `
-                <iframe src="https://youtube.com{youtubeVideoId}?autoplay=1&mute=0&enablejsapi=1" 
+                <iframe src="https://youtube.com{youtubeVideoId}" 
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                         allowfullscreen>
                 </iframe>
             `;
             
-            // 💡 如果此時背景音樂 (bgm.mp3) 正在播放，先幫它暫停，才不會跟影片聲音撞在一起！
+            // 💡 暫停原本的背景音樂 (bgm.mp3)，避免聲音重疊
             if (!bgMusic.paused) {
                 bgMusic.pause();
                 musicToggleBtn.textContent = '🔇';
@@ -999,6 +998,7 @@
             // 顯示 YouTube 播放器圖層
             ytPlayerOverlay.classList.add('show');
         });
+
 
         // ❌ 🔴 關閉 YouTube 內建播放器
         function closeYtPlayer() {
