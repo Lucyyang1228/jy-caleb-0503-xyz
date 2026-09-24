@@ -179,16 +179,21 @@
             bottom: 120px; /* 滑動到畫面底部上方的位置 */
         }
 
-        /* 🚫 新增：當鎖定畫面成功「解鎖後」，強行將相機按鈕徹底拔除，防止主畫面誤觸 */
+        /* 🚫 終極修正：只要鎖定畫面被加上了 unlocked，就把這兩個元件強行變不見！ */
+        .unlocked .camera-btn,
+        .unlocked ~ .camera-btn,
         .lock-screen.unlocked .camera-btn {
             display: none !important;
-            pointer-events: none;
+            opacity: 0 !important;
+            pointer-events: none !important;
         }
 
-        /* 🚫 新增：當鎖定畫面成功「解鎖後」，也強行將底部提示框徹底隱形 */
+        .unlocked #bottom-toast,
+        .unlocked ~ #bottom-toast,
         .lock-screen.unlocked #bottom-toast {
             display: none !important;
-            pointer-events: none;
+            opacity: 0 !important;
+            pointer-events: none !important;
         }
 
 
@@ -924,7 +929,12 @@
 
         unlockBtn.addEventListener('click', function() {
             lockScreen.classList.add('unlocked');
+            
+            /* 🚫 新增防線：解鎖成功進入主畫面時，用 JS 強行將相機按鈕與提示氣泡徹底變不見 */
+            if (bottomToast) bottomToast.style.display = 'none';
+            if (cameraBtn) cameraBtn.style.display = 'none';
         });
+
 
         widgetTopRight.addEventListener('click', function() {
             galleryScreen.style.backgroundImage = "url('gallery1.png')";
