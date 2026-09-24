@@ -179,6 +179,18 @@
             bottom: 120px; /* 滑動到畫面底部上方的位置 */
         }
 
+        /* 🚫 新增：當鎖定畫面成功「解鎖後」，強行將相機按鈕徹底拔除，防止主畫面誤觸 */
+        .lock-screen.unlocked .camera-btn {
+            display: none !important;
+            pointer-events: none;
+        }
+
+        /* 🚫 新增：當鎖定畫面成功「解鎖後」，也強行將底部提示框徹底隱形 */
+        .lock-screen.unlocked #bottom-toast {
+            display: none !important;
+            pointer-events: none;
+        }
+
 
 
         /* ----------------------------------
