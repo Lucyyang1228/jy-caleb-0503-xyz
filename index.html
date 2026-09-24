@@ -127,6 +127,60 @@
             z-index: 16;
         }
 
+        /* 📸 新增：右下角相機點擊熱區（維持與解鎖蘋果按鈕對稱） */
+        .camera-btn {
+            position: absolute;
+            bottom: 5.5%;
+            right: 11.4%;
+            width: 13%;
+            height: 6%;
+            background: rgba(255, 0, 0, 0); /* 💡 測試時可以把最後的 0 改成 0.5 看位置 */
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 16;
+        }
+
+        /* 💬 新增：鎖定畫面底部的彈出通知訊息框（🌸 完美還原主畫面輕透質感版） */
+        #bottom-toast {
+            position: absolute;
+            bottom: -60px;      /* 預設藏在手機畫面底部的外面 */
+            left: 50%;
+            transform: translateX(-50%); /* 橫向置中 */
+            
+            /* 🌸 核心修正：跟主畫面通知完全相同的 0.35 輕透半透明白，不會太白也不會太毛 */
+            background-color: rgba(255, 255, 255, 0.55); 
+            
+            /* ✨ 核心修正：跟主畫面通知完全相同的 10px 蘋果毛玻璃模糊特效 */
+            backdrop-filter: blur(10px);                 
+            -webkit-backdrop-filter: blur(10px);
+            
+            /* 🎨 核心修正：跟主畫面通知完全相同的深灰色字體，看得清楚又高級 */
+            color: #000000;                              
+            
+            /* 加上與主畫面通知相同的極細微白邊框 */
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            
+            padding: 12px 16px;
+            box-sizing: border-box;
+            border-radius: 18px;
+            box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.2); /* 與主畫面相同的柔和陰影 */
+            z-index: 30; 
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            font-family: "Microsoft JhengHei", sans-serif;
+            font-weight: bold;
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 從 top 改成 bottom 的滑動效果 */
+            white-space: nowrap;
+        }
+
+        /* 當通知被激活從底部滑上來時 */
+        #bottom-toast.show {
+            bottom: 120px; /* 滑動到畫面底部上方的位置 */
+        }
+
+
+
         /* ----------------------------------
            2. 主畫面 (Home Screen)
         ------------------------------------- */
@@ -412,7 +466,7 @@
             background-color: rgba(255, 255, 255, 0.2); 
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 24px;
-            padding: 10px 40px 30px 35px;         /* 🌸 修正：換回原本最完美的 20px 內襯留白 */
+            padding: 10px 30px 30px 30px;         /* 🌸 修正：換回原本最完美的 20px 內襯留白 */
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -455,14 +509,15 @@
         }
 
 
-        /* 便利貼內部佈局網格（還原最初版） */
+        /* 便利貼內部佈局網格 */
         .sticky-notes-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
-            overflow-y: auto;                     /* 超過4張時，此區域會自動出現滾動條 */
+            gap: 14px; /* 👈 縮小網格間距，防止大卡片寬度被擠爆 */
+            overflow-y: auto;                     
             padding: 5px;    
         }
+
         
         /* 💡 針對只有1張便利貼（橘色按鈕）時的特殊置中加大樣式 */
         .sticky-notes-grid.single-note {
@@ -475,20 +530,21 @@
         .sticky-note-card {
             width: 100%;
             aspect-ratio: 1 / 1;                  /* 完美正方形 */
-            max-width: 130px;
+            max-width: 145px; /* 👈 便利貼本體變大：從 130px 放大到 145px */
             padding: 12px;
             box-sizing: border-box;
-            background-color: #fef08a;             /* 經典便利貼粉黃色 */
+            background-color: #fef08a;             
             color: #334155;
             box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.15);
-            transform: rotate(-1.5deg);           /* 微微向左傾斜，營造真實黏貼感 */
+            transform: rotate(-1.5deg);           
             cursor: pointer;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            border-bottom-right-radius: 15px 3px; /* 💡 魔法細節：讓便籤右下角看起來微翹 */
+            border-bottom-right-radius: 15px 3px; 
         }
+
         
         /* 💡 新增：四張便利貼時，各自獨立指派【黃、橘、粉、紫】四色與傾斜角度 */
         
@@ -525,14 +581,14 @@
         }
         
         .sticky-note-text {
-            font-size: 13px;
+            font-size: 14px; 
             font-weight: bold;
             line-height: 1.4;
             word-break: break-all;
         }
         
         .sticky-note-footer {
-            font-size: 10px;
+            font-size: 12px;
             text-align: right;
             color: #64748b;
         }
@@ -752,6 +808,15 @@
             <!-- 左下角的隱形蘋果按鈕 -->
             <div class="apple-unlock-btn" id="unlockBtn" title="Click!"></div>
         </div>
+            <!-- 📸 新增：右下角相機點擊熱區（不使用 onclick，維持純淨標籤） -->
+            <div class="camera-btn" id="cameraBtn" title="相機"></div>
+
+
+            <!-- 💬 新增：底部提示訊息框（維持與主畫面通知類似的格式） -->
+            <div id="bottom-toast">
+                <span class="noti-icon">🔒</span>
+                <span class="noti-text">點擊蘋果以解鎖鎖定畫面</span>
+            </div>
 
         <!-- ================= 主畫面 ================= -->
         <div class="home-screen">
@@ -840,6 +905,10 @@
         const widgetCalendar = document.getElementById('widgetCalendar');
         const calendarScreen = document.getElementById('calendarScreen');
         const calendarBackBtn = document.getElementById('calendarBackBtn');
+        const cameraBtn = document.getElementById('cameraBtn');
+        const bottomToast = document.getElementById('bottom-toast');
+        let toastTimeout; // 維持你原本的 timeout 變數命名格式
+
 
         unlockBtn.addEventListener('click', function() {
             lockScreen.classList.add('unlocked');
@@ -877,7 +946,7 @@
 
         const redMessages = ['夏以晝是我的！', '不要偷看我哥哥！', '😠'];
         let redIndex = 0;
-        const greenMessages = ['不要偷看我妹妹！', '😠', '😡😡😡'];
+        const greenMessages = ['嗯？你找她？', '好奇心太重，可不是什麼好事。', '她不喜歡別人亂看她東西。'];
         let greenIndex = 0;
 
         function triggerNotification(text) {
@@ -898,6 +967,25 @@
             triggerNotification(greenMessages[greenIndex]);
             greenIndex = (greenIndex + 1) % greenMessages.length;
         });
+
+        // 相機底部彈出通知（維持你原本 triggerNotification 的清除計時與 show 類別格式）
+        cameraBtn.addEventListener('click', function() {
+            clearTimeout(toastTimeout);
+            
+            // 先移除 show 確保連續點擊時動畫能重新觸發
+            bottomToast.classList.remove('show');
+            
+            // 延遲讓瀏覽器重繪，隨後加入 show 讓通知滑上來
+            setTimeout(function() {
+                bottomToast.classList.add('show');
+                
+                // 維持你原本設定的 3000 毫秒（3秒）後自動移除並滑回去
+                toastTimeout = setTimeout(function() {
+                    bottomToast.classList.remove('show');
+                }, 3000);
+            }, 10);
+        });
+
 
 
         // ============================================================
@@ -937,19 +1025,19 @@
         // ============================================================
         window.addEventListener('DOMContentLoaded', function() {
             const correctPassword = "0503"; 
-            let enterPassword = prompt("【芝麻開門】\n請輸入通關密語以進入深空：");
+            let enterPassword = prompt("【芝麻開門】\n請輸入通關密語以查看手機");
             
             while (enterPassword !== correctPassword) {
                 if (enterPassword === null) {
                     document.body.innerHTML = `
                         <div style="background-color:#121212; color:#ef4444; text-align:center; padding-top:30vh; width:100vw; height:100vh; font-family:sans-serif; position:fixed; top:0; left:0; z-index:99999;">
-                            <h1 style="font-size:48px; margin-bottom:10px;">🔒 訪問已被拒絕</h1>
-                            <p style="color:#888; font-size:18px; margin-top:20px;">您必須輸入正確的通關密語才能進入深空。</p>
+                            <h1 style="font-size:32px; margin-bottom:10px;">🔒 訪問已被拒絕</h1>
+                            <p style="color:#888; font-size:18px; margin-top:20px;">您必須輸入正確的通關密語才能查看手機。</p>
                         </div>
                     `;
                     return; 
                 }
-                enterPassword = prompt("❌ 通關密語錯誤！提示：夏以晝最喜歡的人的生日：");
+                enterPassword = prompt("❌ 密碼錯誤！提示：夏以晝最喜歡的人的生日");
             }
             
             // 🔓 密碼輸入正確後
@@ -981,33 +1069,34 @@
         // 3. JavaScript 邏輯：雙層巢狀便利貼與大圖切換核心邏輯            
         // ============================================================
         
-        // 📂 【設定資料庫】未來要修改便籤文字、或換照片，直接改這區最快！
+        // 📂 【設定資料庫】直接在裡面幫每一張加上專屬的 footer！
         const stickyData = {
             orange: {
                 title: "Happy Graduation 🎓",
                 notes: [
-                    { text: "畢業快樂！未來也要一起走下去呀✨", image: "orange_bg.png" } // 👈 1張便利貼
+                    { text: "文武雙全、才貌兼備的人在這裡留下了訊息...🎉", image: "orange_bg.png", footer: "Amber💖" } // 👈 橘色專屬
                 ]
             },
             red: {
                 title: "Best Wish ❤️",
                 notes: [
-                    { text: "許個願吧！希望每天都能見到你🥰", image: "red_pic1.png" }, // 👈 4張便利貼與各自大圖
-                    { text: "跟你在一起的時光，連空氣都是甜的", image: "red_pic2.png" },
-                    { text: "這是屬於我們的秘密基地🔒", image: "red_pic3.png" },
-                    { text: "今天也是超級喜歡你的一天！", image: "red_pic4.png" }
+                    { text: "開銀行的里長伯在這裡留下了腳印...🥰", image: "red_pic1.png", footer: "Lily✨" },      // 👈 第一張自訂
+                    { text: "系醬跟可頌的媽咪在這裡撒了金粉...✨", image: "red_pic2.png", footer: "可可💞" },     // 👈 第二張自訂
+                    { text: "茶寶大廚、三貓家長在這裡煮了一道菜...🍳", image: "red_pic3.png", footer: "小暴😎" },    // 👈 第三張自訂
+                    { text: "行動點歌機在這裡唱了一首歌...🎵", image: "red_pic4.png", footer: "惠茹🌼" }       // 👈 第四張自訂
                 ]
             },
             green: {
                 title: "From TP Members 👥",
                 notes: [
-                    { text: "聚會紀念！第一張合照留念📸", image: "cake.png" },      // 👈 包含你的吃蛋糕聚會照
-                    { text: "與大家度過的美好慶生派對🍰", image: "green_pic2.png" },
-                    { text: "核心成員報到！悄悄話板面", image: "green_pic3.png" },
-                    { text: "期待下一次的深空冒險旅程🚀", image: "green_pic4.png" }
+                    { text: "手搖飲好夥伴在這裡放了杯奶茶...🥤", image: "cake.png", footer: "Yuri🍥" },
+                    { text: "門市綠手指在此種了一棵植物...🌱", image: "green_pic2.png", footer: "思秀🍀" },
+                    { text: "秦徹的小狸花留下了最後的波紋...🐱", image: "green_pic3.png", footer: "Lucy🎀" },
+                    { text: "會計專家在這裡留下了薪資條...💵", image: "green_pic4.png", footer: "咨昱🌞" }
                 ]
             }
         };
+
 
         // 綁定網頁上的 HTML 標籤元件
         const stickyWallOverlay = document.getElementById('stickyWallOverlay');
@@ -1015,42 +1104,43 @@
         const stickyNotesGrid = document.getElementById('stickyNotesGrid');
         const stickyGalleryScreen = document.getElementById('stickyGalleryScreen');
 
-        // 🟢 打開【第一層】：自動鋪設並開啟便利貼牆面
+        // 打開【第一層】：鋪設並開啟便利貼牆面（個別自訂右下角版）
         function openStickyWall(type) {
-            const data = stickyData[type]; // 抓出對應顏色的資料包
+            const data = stickyData[type];
             if (!data) return;
 
-            stickyWallTitle.textContent = data.title; // 換上標題文字
-            stickyNotesGrid.innerHTML = "";           // 💡 清空上一次殘留的舊紙條
+            stickyWallTitle.textContent = data.title;
+            stickyNotesGrid.innerHTML = ""; // 清空上一次的舊紙條
 
-            // 如果只有1張便利貼（橘色），套用單張置中的 CSS 排版
             if (data.notes.length === 1) {
                 stickyNotesGrid.classList.add('single-note');
             } else {
                 stickyNotesGrid.classList.remove('single-note');
             }
 
-            // 用迴圈把資料庫裡的每條文字，做成實體小黃紙條丟進網頁
             data.notes.forEach((note, index) => {
                 const noteCard = document.createElement('div');
                 noteCard.className = 'sticky-note-card';
                 
-                // 設定點擊紙條動作：傳入綁定的照片檔名，開啟【第二層大圖】
+                // 🔒 點擊功能完全保留！點了依然能完美開啟大圖，絕不受影響
                 noteCard.onclick = function() {
-                    openStickyGallery(note.image);
+                    openStickyGallery(note.image); 
                 };
 
-                // 置入便利貼文字與編號
+                // 🌸 核心修正：將原本死板的 #\${index + 1} 📌，改為自動讀取你自訂的 note.footer！
+                // 如果你忘記在資料庫寫 footer，它會貼心地幫你自動用原本的數字和圖釘當備份，防呆不破圖！
+                const displayFooter = note.footer ? note.footer : `#${index + 1} 📌`;
+
                 noteCard.innerHTML = `
                     <div class="sticky-note-text">${note.text}</div>
-                    <div class="sticky-note-footer">#${index + 1} 📌</div>
+                    <div class="sticky-note-footer">${displayFooter}</div>
                 `;
                 stickyNotesGrid.appendChild(noteCard);
             });
 
-            // 加上 .show 類別，讓便利貼牆面平滑淡入登場
             stickyWallOverlay.classList.add('show');
         }
+
 
         // 🔴 關閉【第一層】：點擊大 (×) 鈕，徹底退出牆面回到手機桌面
         function closeStickyWall() {
