@@ -26,9 +26,6 @@
 
     <!-- 📦 載入 3D 核心引擎 + Meshopt 專屬高效能解碼器 -->
     <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
-    <script src="https://unpkg.com/meshoptimizer@0.22.0/meshopt_decoder.js"></script>
-
-
 
 
 
@@ -874,11 +871,10 @@
 <body>
 
     <!-- ================= 📦 左下角 3D 娃娃主結構 ================= -->
-    <!-- 將 src 改為 data-src 以防止時序衝突，等解碼器準備好才載入 -->
     <div class="doll-3d-container">
         <model-viewer 
             id="avatar3D"
-            data-src="my_doll.glb" 
+            src="my_doll.glb" 
             title="以晝 3D Q版娃娃"
             camera-controls
             disable-zoom
@@ -889,7 +885,6 @@
             interaction-prompt="none">
         </model-viewer>
     </div>
-
 
 
     <!-- 手機外框 -->
@@ -1308,88 +1303,65 @@
                 marqueeText.style.animationPlayState = 'running';
             }).catch(e => console.log("重啟背景音樂遭攔截:", e));
         }
+
+
         // ============================================================
-        // 📦 核心 4：3D 娃娃【時序控制終極版：先解碼再載入】邏輯
+        // 📦 核心 4：3D 娃娃【純淨 Draco 版：上下漂浮 + 點擊自轉 + 眼神追蹤】邏輯
         // ============================================================
         const avatar3D = document.getElementById('avatar3D');
 
         if (avatar3D) {
-            function init3DModel() {
-                try {
-                    // 1. 強迫第一步：在載入任何檔案前，必須先完成解碼鑰匙的註冊
-                    if (window.MeshoptDecoder) {
-                        avatar3D.registerExternalExtension('EXT_meshopt_compression', window.MeshoptDecoder);
-                        console.log("⚡ [3D 時序控制] Meshopt 解碼鑰匙優先註冊成功！");
-                    }
-                } catch (e) {
-                    console.log("⚠️ 解碼器註冊時發生異常:", e);
-                }
+            let startTime = Date.now();
+            let isSpinning = false; // 用來標記娃娃目前是不是正在自轉
 
-                // 2. 強迫第二步：解碼鑰匙註冊完畢後，才正式把 3D 娃娃的檔案網址灌進去載入
-                const realSrc = avatar3D.getAttribute('data-src');
-                if (realSrc) {
-                    avatar3D.src = realSrc;
-                }
+            // 💡 互動一：網頁底層呼吸「上下漂浮」動畫（2.5是速度，0.12是幅度）
+            function floatAnimation() {
+                const elapsedTime = (Date.now() - startTime) / 1000;
+                const floatY = Math.sin(elapsedTime * 2.5) * 0.12; 
+                avatar3D.cameraTarget = `0m ${0.5 + floatY}m 0m`;
+                requestAnimationFrame(floatAnimation);
+            }
+            
+            // 當 3D 娃娃完全載入成功後，立刻啟動漂浮動畫
+            avatar3D.addEventListener('load', () => {
+                console.log("🌸 [3D 成功通知] 夏以晝娃娃已成功在網頁現形！");
+                floatAnimation();
+            });
 
-                let startTime = Date.now();
-                let isSpinning = false;
-
-                // 💡 互動一：上下漂浮動畫
-                function floatAnimation() {
-                    const elapsedTime = (Date.now() - startTime) / 1000;
-                    const floatY = Math.sin(elapsedTime * 2.5) * 0.12; 
-                    avatar3D.cameraTarget = `0m ${0.5 + floatY}m 0m`;
-                    requestAnimationFrame(floatAnimation);
-                }
+            // 💡 互動二：滑鼠點擊驚喜回饋（點一下娃娃，它會快速自轉一圈）
+            avatar3D.addEventListener('click', () => {
+                if (isSpinning) return;
+                isSpinning = true;
                 
-                // 娃娃完全載入成功後才開啟漂浮
-                avatar3D.addEventListener('load', () => {
-                    console.log("🌸 [3D 成功通知] 夏以晝娃娃已排除時序衝突，成功在網頁現形！");
-                    floatAnimation();
-                });
+                avatar3D.style.transition = "transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)";
+                avatar3D.style.transform = "rotateY(360deg)";
+                
+                setTimeout(() => {
+                    avatar3D.style.transition = "none";
+                    avatar3D.style.transform = "rotateY(0deg)";
+                    isSpinning = false;
+                }, 600);
+            });
 
-                // 💡 互動二：點擊自轉一圈
-                avatar3D.addEventListener('click', () => {
-                    if (isSpinning) return;
-                    isSpinning = true;
-                    
-                    avatar3D.style.transition = "transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)";
-                    avatar3D.style.transform = "rotateY(360deg)";
-                    
-                    setTimeout(() => {
-                        avatar3D.style.transition = "none";
-                        avatar3D.style.transform = "rotateY(0deg)";
-                        isSpinning = false;
-                    }, 600);
-                });
+            // 💡 互動三：眼神追蹤技術（跟隨滑鼠眼神致敬）
+            window.addEventListener('mousemove', (event) => {
+                if (isSpinning) return;
 
-                // 💡 互動三：眼神跟隨滑鼠
-                window.addEventListener('mousemove', (event) => {
-                    if (isSpinning) return;
+                const rect = avatar3D.getBoundingClientRect();
+                const dollCenterX = rect.left + rect.width / 2;
+                const dollCenterY = rect.top + rect.height / 2;
 
-                    const rect = avatar3D.getBoundingClientRect();
-                    const dollCenterX = rect.left + rect.width / 2;
-                    const dollCenterY = rect.top + rect.height / 2;
+                const deltaX = event.clientX - dollCenterX;
+                const deltaY = event.clientY - dollCenterY;
 
-                    const deltaX = event.clientX - dollCenterX;
-                    const deltaY = event.clientY - dollCenterY;
+                // 限制娃娃轉頭的幅度，最大左右 25 度（正負 25deg）
+                const maxTurnAngle = 25; 
+                const targetYaw = Math.max(-maxTurnAngle, Math.min(maxTurnAngle, (deltaX / window.innerWidth) * 90));
+                const targetPitch = 75 + Math.max(-8, Math.min(8, (deltaY / window.innerHeight) * 30));
 
-                    const maxTurnAngle = 25; 
-                    const targetYaw = Math.max(-maxTurnAngle, Math.min(maxTurnAngle, (deltaX / window.innerWidth) * 90));
-                    const targetPitch = 75 + Math.max(-8, Math.min(8, (deltaY / window.innerHeight) * 30));
-
-                    avatar3D.cameraOrbit = `${targetYaw}deg ${targetPitch}deg 105%`;
-                });
-            }
-
-            // ⚡ 確保整張網頁所有元件、圖片（包含解碼器 JS 檔）都完全下載完了，才執行 init3DModel
-            if (document.readyState === 'complete') {
-                init3DModel();
-            } else {
-                window.addEventListener('load', init3DModel);
-            }
+                avatar3D.cameraOrbit = `${targetYaw}deg ${targetPitch}deg 105%`;
+            });
         }
-
 
 
 
