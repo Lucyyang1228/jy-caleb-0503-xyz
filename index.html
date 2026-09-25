@@ -1384,7 +1384,7 @@
                     if (!isRotationMode || isUserDragging) return; 
                     
                     // 保持精品般極度緩慢、優雅的 0.4 速率自轉展示
-                    rotationAngle = (rotationAngle + 0.4) % 360;
+                    rotationAngle = (rotationAngle - 0.4) % 360;
                     avatar3D.cameraOrbit = `${rotationAngle}deg 90deg 105%`;
                     
                     animationFrameId = requestAnimationFrame(playRotationLoop);
