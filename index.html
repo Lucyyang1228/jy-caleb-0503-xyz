@@ -25,11 +25,6 @@
     <link rel="preload" href="green_pic4.png" as="image"> 
 
 
-    <!-- ================= 💡 新增：雙層外部 3D 引擎 3D 載入器 ================= -->
-    <script src="https://cloudflare.com"></script>
-    <script src="https://jsdelivr.net"></script>
-
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> Caleb's Lover </title>
@@ -815,29 +810,6 @@
         } /* 👈 媒體查詢大括號安全結束 */
 
 
-
-        /* ============================================================ */
-        /* 1. CSS 樣式：🦖 手機外部左下角 3D 模型系統（電腦版專屬）        */
-        /* ============================================================ */
-        #model3d-canvas {
-            position: fixed;
-            bottom: 50px;       /* 💡 距離網頁最底部 50px，剛好在你紅圈的位置 */
-            left: 10%;          /* 💡 距離網頁左邊 10%，可依實際畫面左右微調 */
-            width: 350px;       /* 3D 模型的寬度 */
-            height: 450px;      /* 3D 模型的高度 */
-            z-index: 2;         /* 層級設在背景之上、假手機(13px外殼是25)之下，絕不干擾假手機點擊 */
-            pointer-events: auto; /* 允許滑鼠與 3D 模型進行互動 */
-            display: block;     /* 電腦版預設顯示 */
-        }
-
-        /* 🚫 核心防護：當偵測到是手機版（螢幕小於768px）時，強行將 3D 模型完全隱藏，防止擋到手機畫面 */
-        @media screen and (max-width: 768px) {
-            #model3d-canvas {
-                display: none !important;
-            }
-        }
-
-
     </style>
 </head>
 
@@ -854,11 +826,10 @@
         <div id="musicToggleBtn" class="music-icon-btn">🔊</div>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- 2. HTML 結構：手機外部左下角 3D 模型渲染畫布（僅在電腦版顯示）   -->
-    <!-- ============================================================ -->
-    <canvas id="model3d-canvas"></canvas>
+</body>
+</html>
 
+<body>
 
     <!-- 手機外框 -->
     <div class="phone-container">
@@ -1276,110 +1247,6 @@
                 marqueeText.style.animationPlayState = 'running';
             }).catch(e => console.log("重啟背景音樂遭攔截:", e));
         }
-
-
-
-        // ============================================================
-        // 3. JavaScript 邏輯：手機外部左下角 3D 模型載入與滑鼠互動核心   
-        // ============================================================
-        (function() {
-            // 💡 1. 在這裡設定你剛才從 Mixamo Combiner 下載下來的 GLB 3D 模型檔案名稱
-            const myModelPath = "my_character.glb"; 
-
-            // 如果是手機版尺寸，為了節省電腦效能，直接不執行 3D 載入邏輯
-            if (window.innerWidth <= 768) return;
-
-            const canvas = document.getElementById('model3d-canvas');
-            if (!canvas) return;
-
-            // 建立 3D 場景與透明背景
-            const scene = new THREE.Scene();
-            
-            // 建立相機
-            const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
-            camera.position.set(0, 1.5, 6.0); // 調整相機高度與遠近，讓角色完美置中
-
-            // 建立渲染器並開啟抗鋸齒與透明度
-            const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.shadowMap.enabled = true;
-
-            // 🌸 燈光系統：加上環境光與帶有一點溫暖陽光感的方向光，完美貼合你原來的森林大背景
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-            scene.add(ambientLight);
-
-            const dirLight = new THREE.DirectionalLight(0xfff5e6, 1.0); // 暖白光
-            dirLight.position.set(5, 10, 7);
-            scene.add(dirLight);
-
-            // 動畫計時器與動態混合器
-            let mixer;
-            const clock = new THREE.Clock();
-            let modelRoot = null;
-
-            // 🚀 載入 3D 模型檔案
-            const loader = new THREE.GLTFLoader();
-            loader.load(myModelPath, function(gltf) {
-                modelRoot = gltf.scene;
-                
-                // 自動縮放模型比例（如果模型太大或太小，可以微調這個數字）
-                modelRoot.scale.set(30.0, 30.0, 30.0); 
-                modelRoot.position.set(0, -1.0, 0);
-                scene.add(modelRoot);
-
-                // 🔄 自動抓取並播放你在 Mixamo Combiner 合併進去的第一個動作動畫
-                if (gltf.animations && gltf.animations.length > 0) {
-                    mixer = new THREE.AnimationMixer(modelRoot);
-                    // 預設播放第一個動作（通常是發呆 Idle 或預設動畫）
-                    const action = mixer.clipAction(gltf.animations[0]);
-                    action.play();
-                }
-            }, undefined, function(error) {
-                console.error("3D 模型載入失敗，請確認檔名與路徑是否正確:", error);
-            });
-
-            // 👀 滑鼠跟隨互動系統：讓 3D 角色會隨滑鼠移動稍微轉頭或看著滑鼠，增加生命力！
-            const mouse = { x: 0, y: 0 };
-            window.addEventListener('mousemove', function(event) {
-                // 計算滑鼠在網頁上的相對座標比例
-                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-            });
-
-            // 🎬 網頁動態渲染無窮迴圈
-            function animate() {
-                requestAnimationFrame(animate);
-
-                const delta = clock.getDelta();
-                // 更新 Mixamo 動畫骨架動態
-                if (mixer) mixer.update(delta);
-
-                // ✨ 讓 3D 角色隨著滑鼠在螢幕上移動時，身體微微轉向滑鼠的方向
-                if (modelRoot) {
-                    // 微調 0.35 與 0.15 掌控角色轉動的幅度，使其看起來自然不僵硬
-                    modelRoot.rotation.y = THREE.MathUtils.lerp(modelRoot.rotation.y, mouse.x * 0.35, 0.1);
-                    modelRoot.rotation.x = THREE.MathUtils.lerp(modelRoot.rotation.x, -mouse.y * 0.15, 0.1);
-                }
-
-                renderer.render(scene, camera);
-            }
-            animate();
-
-            // 📐 視窗尺寸改變時自動重繪調整
-            window.addEventListener('resize', function() {
-                if (window.innerWidth <= 768) {
-                    canvas.style.display = 'none';
-                    return;
-                } else {
-                    canvas.style.display = 'block';
-                }
-                camera.aspect = canvas.clientWidth / canvas.clientHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-            });
-        })();
-
 
 
     </script>
