@@ -24,6 +24,12 @@
     <link rel="preload" href="green_pic3.png" as="image"> 
     <link rel="preload" href="green_pic4.png" as="image"> 
 
+    <!-- 📦 載入 3D 核心引擎 + Meshopt 專屬高效能解碼器 -->
+    <script type="module" src="https://googleapis.com"></script>
+    <script src="https://unpkg.com"></script>
+
+
+
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -810,6 +816,44 @@
         } /* 👈 媒體查詢大括號安全結束 */
 
 
+
+        /* ============================================================ */
+        /* 📦 3D 娃娃組件樣式（僅在大螢幕電腦版顯示）                      */
+        /* ============================================================ */
+
+        /* 3D 畫布本體的外框定位 */
+        .doll-3d-container {
+            position: fixed;
+            bottom: 5vh;               /* 距離視窗底部 5% 的高度 */
+            left: 10vw;                /* 距離視窗左側 10% 的寬度（精準切齊左側紅圈位置） */
+            width: 320px;              /* 3D 娃娃的寬度 */
+            height: 450px;             /* 3D 娃娃的高度 */
+            z-index: 2;                /* 層級設為 2，確保在手機殼底下、大背景之上 */
+            display: block;            /* 預設在電腦大螢幕版顯示 */
+        }
+
+        /* model-viewer 標籤本體的控制 */
+        model-viewer {
+            width: 100%;
+            height: 100%;
+            outline: none;             /* 去除點擊時的藍色外框 */
+            --poster-color: transparent; /* 載入前的暫存背景設為透明 */
+            cursor: grab;              /* 滑鼠移上去時顯示「抓取」小手 */
+        }
+
+        model-viewer:active {
+            cursor: grabbing;          /* 滑鼠點擊拖曳時顯示「緊抓」小手 */
+        }
+
+        /* 📱 完美符合規格：當螢幕寬度小於或等於 768px（手機/平版）時，強行將 3D 娃娃完全隱形且不佔空間 */
+        @media screen and (max-width: 768px) {
+            .doll-3d-container {
+                display: none !important;
+            }
+        }
+
+
+
     </style>
 </head>
 
@@ -830,6 +874,24 @@
 </html>
 
 <body>
+
+    <!-- ================= 📦 左下角 3D 娃娃主結構 ================= -->
+    <!-- environment-image: 內建高質感中性環境光 / shadow-intensity: 腳底立體陰影 -->
+    <div class="doll-3d-container">
+        <model-viewer 
+            id="avatar3D"
+            src="my_doll.glb" 
+            title="以晝 3D Q版娃娃"
+            camera-controls
+            disable-zoom
+            environment-image="neutral"
+            exposure="1.0"
+            shadow-intensity="1.5"
+            camera-orbit="0deg 75deg 105%"
+            interaction-prompt="none">
+        </model-viewer>
+    </div>
+
 
     <!-- 手機外框 -->
     <div class="phone-container">
@@ -1247,6 +1309,69 @@
                 marqueeText.style.animationPlayState = 'running';
             }).catch(e => console.log("重啟背景音樂遭攔截:", e));
         }
+
+        // ============================================================
+        // 📦 核心 4：3D 娃娃【Meshopt 解碼】+【上下漂浮】+【點擊自轉】+【眼神追蹤】
+        // ============================================================
+        const avatar3D = document.getElementById('avatar3D');
+
+        if (avatar3D) {
+            // ⚡ 關鍵鑰匙：強行解鎖 7MB 的 Meshopt 壓縮檔案，讓網頁秒開又順暢
+            avatar3D.registerExternalExtension('EXT_meshopt_compression', window.MeshoptDecoder);
+
+            let startTime = Date.now();
+            let isSpinning = false; // 用來標記娃娃目前是不是正在自轉
+
+            // 💡 互動一：網頁底層呼吸「上下漂浮」動畫（2.5是速度，0.12是幅度）
+            function floatAnimation() {
+                const elapsedTime = (Date.now() - startTime) / 1000;
+                const floatY = Math.sin(elapsedTime * 2.5) * 0.12; 
+                avatar3D.cameraTarget = `0m ${0.5 + floatY}m 0m`;
+                requestAnimationFrame(floatAnimation);
+            }
+            
+            // 當 3D 娃娃完全載入成功後，立刻啟動漂浮動畫
+            avatar3D.addEventListener('load', () => {
+                floatAnimation();
+            });
+
+            // 💡 互動二：滑鼠點擊驚喜回饋（點一下娃娃，它會快速自轉一圈）
+            avatar3D.addEventListener('click', () => {
+                if (isSpinning) return;
+                isSpinning = true;
+                console.log("🌸 戳到夏以晝娃娃了！");
+                
+                avatar3D.style.transition = "transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)";
+                avatar3D.style.transform = "rotateY(360deg)";
+                
+                setTimeout(() => {
+                    avatar3D.style.transition = "none";
+                    avatar3D.style.transform = "rotateY(0deg)";
+                    isSpinning = false;
+                }, 600);
+            });
+
+            // 💡 互動三：眼神追蹤技術（跟隨滑鼠眼神致敬）
+            window.addEventListener('mousemove', (event) => {
+                if (isSpinning) return;
+
+                const rect = avatar3D.getBoundingClientRect();
+                const dollCenterX = rect.left + rect.width / 2;
+                const dollCenterY = rect.top + rect.height / 2;
+
+                const deltaX = event.clientX - dollCenterX;
+                const deltaY = event.clientY - dollCenterY;
+
+                // 限制娃娃轉頭的幅度，最大左右 25 度（正負 25deg）
+                const maxTurnAngle = 25; 
+                const targetYaw = Math.max(-maxTurnAngle, Math.min(maxTurnAngle, (deltaX / window.innerWidth) * 90));
+                const targetPitch = 75 + Math.max(-8, Math.min(8, (deltaY / window.innerHeight) * 30));
+
+                avatar3D.cameraOrbit = `${targetYaw}deg ${targetPitch}deg 105%`;
+            });
+        }
+
+
 
 
     </script>
