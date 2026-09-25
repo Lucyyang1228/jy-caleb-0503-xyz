@@ -823,50 +823,51 @@
         .doll-3d-container {
             position: fixed;
             bottom: 6vh;               /* 距離視窗底部 6% 的高度 */
-            left: 20vw;                /* 往右推到 20vw，精準坐在假手機左側 */
+            left: 25vw;                /* 往右推到 20vw，精準坐在假手機左側 */
             width: 220px;              /* 娃娃尺寸 */
-            height: 330px;             /* 稍微加高高度，用來容納頂部的開關按鈕 */
+            height: 340px;             /* 加高高度，用來容納底部的開關按鈕 */
             z-index: 2;                /* 層級設為 2，確保在手機殼底下、大背景之上 */
             display: flex;
-            flex-direction: column;    /* 讓按鈕與娃娃垂直上下排列 */
+            flex-direction: column-reverse; /* 💡 修正：倒序排列，強迫按鈕乖乖出現在娃娃的正下方！ */
             align-items: center;
         }
 
-        /* 🔄 蘋果磨砂玻璃質感：音樂盒旋轉切換小開關 */
+        /* 🔄 完美還原音樂盒控制盒質感：深色半透明磨砂切換小開關 */
         .doll-rot-btn {
-            background-color: rgba(255, 255, 255, 0.4); 
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            color: #1d1d1f;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 4px 10px;
-            border-radius: 12px;
+            background-color: rgba(0, 0, 0, 0.45); /* 💡 修正：完全複製您放音樂的 45% 透明黑底 */
+            backdrop-filter: blur(5px);           /* 💡 完全複製您放音樂的 5px 蘋果毛玻璃模糊 */
+            -webkit-backdrop-filter: blur(5px);
+            color: rgba(255, 255, 255, 0.9);      /* 💡 修正：換成跟音樂跑馬燈一樣的亮白字 */
+            border: 1px solid rgba(255, 255, 255, 0.15); /* 極細微的白邊框增強精緻度 */
+            padding: 5px 12px;
+            border-radius: 20px;                   /* 💡 完全複製您放音樂的 20px 圓角感 */
             font-size: 11px;
             font-weight: bold;
             cursor: pointer;
             user-select: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             transition: all 0.2s ease;
-            margin-bottom: 5px;        /* 與下方娃娃拉開一點小距離 */
+            margin-top: 6px;           /* 💡 修正：改成與上方娃娃拉開一點小距離 */
+            text-align: center;
         }
         .doll-rot-btn:hover {
-            background-color: rgba(255, 255, 255, 0.6);
+            background-color: rgba(0, 0, 0, 0.7); /* 滑鼠移上去時變清晰、變深 */
             transform: scale(1.05);
         }
         .doll-rot-btn:active {
             transform: scale(0.95);
         }
-        /* 當開關被激活啟用（開啟旋轉）時的粉橘色高亮視覺 */
+        /* 當開關被激活啟用（開啟旋轉）時，維持黑色質感的同時文字高亮 */
         .doll-rot-btn.active {
-            background-color: rgba(255, 233, 212, 0.75);
-            border-color: rgba(255, 165, 0, 0.4);
-            color: #e65100;
+            background-color: rgba(0, 0, 0, 0.75);
+            border-color: rgba(255, 255, 255, 0.4);
+            color: #ffb74d;                       /* 高亮成質感的微暖橘字 */
         }
 
         /* model-viewer 標籤本體的控制 */
         model-viewer {
             width: 100%;
-            flex: 1;                   /* 填滿下方剩餘的所有空間 */
+            height: 290px;             /* 固定 3D 娃娃的高度範圍 */
             outline: none;             /* 去除點擊時的藍色外框 */
             --poster-color: transparent; /* 載入前的暫存背景設為透明 */
             cursor: grab;
@@ -905,7 +906,7 @@
         <!-- ================= 📦 左下角 3D 娃娃主結構 ================= -->
         <!-- 將 src 改為 data-src 以防止時序衝突，等解碼器準備好才載入 -->
         <div class="doll-3d-container">
-            <button id="dollRotBtn" class="doll-rot-btn" title="切換音樂盒模式">🔄 音樂盒旋轉：關</button>
+            <button id="dollRotBtn" class="doll-rot-btn" title="切換音樂盒模式">🔄 旋轉：關</button>
             <model-viewer 
                 id="avatar3D"
                 data-src="my_doll.glb?v=1" 
@@ -918,7 +919,6 @@
                 interaction-prompt="none">
             </model-viewer>
         </div>
-
 
 
     <!-- 手機外框 -->
@@ -1338,14 +1338,15 @@
             }).catch(e => console.log("重啟背景音樂遭攔截:", e));
         }
 
+
         // ============================================================
-        // 📦 核心 4：3D 娃娃【純淨重構完全體：眼神正向跟隨 + 獨立音樂盒快旋開關】
+        // 📦 核心 4：3D 娃娃【純淨重構完全體：拉高正臉平視 + 獨立深色按鈕 + 全網頁眼神跟隨】
         // ============================================================
         const avatar3D = document.getElementById('avatar3D');
         const dollRotBtn = document.getElementById('dollRotBtn');
 
         if (avatar3D && dollRotBtn) {
-            let isRotationMode = false; // 💡 核心變數：預設「關閉」音樂盒旋轉模式
+            let isRotationMode = false; // 預設「關閉」音樂盒旋轉模式
             let rotationAngle = 0;      // 記錄旋轉的度數
             let animationFrameId = null;
 
@@ -1369,24 +1370,25 @@
                 // 娃娃完全載入成功後的通知
                 avatar3D.addEventListener('load', () => {
                     console.log("🌸 [3D 成功通知] 夏以晝娃娃已成功在指定位置現形！");
-                    avatar3D.cameraTarget = "0m 0.55m 0m"; // 穩穩站立，物理刪除漂浮
-                    avatar3D.cameraOrbit = "0deg 75deg 105%"; // 預設正面靜置向著前方
+                    // 💡 修正：將視覺中心高度從 0.55m 拉高到 0.85m，並將相機角度改成 90deg（平視），強迫娃娃正臉直視您
+                    avatar3D.cameraTarget = "0m 0.85m 0m"; 
+                    avatar3D.cameraOrbit = "0deg 90deg 105%"; 
                 });
 
                 // 💡 互動一：自定義高性能【音樂盒加快自轉展示動畫】
                 function playRotationLoop() {
                     if (!isRotationMode) return; // 如果被關閉了，立刻停下
                     
-                    // 💡 速度微調：2.0 是旋轉速度（數字越大轉越快，比 model-viewer 預設的慢速更輕快流暢）
+                    // 速度微調：2.0 是旋轉速度（轉動流暢、輕快且絲滑）
                     rotationAngle = (rotationAngle + 2.0) % 360;
                     
-                    // 直接將角度寫入相機軌道的第一個參數 (Yaw)，達成無死角 360 度慢慢看清背後的效果
-                    avatar3D.cameraOrbit = `${rotationAngle}deg 75deg 105%`;
+                    // 直接將角度寫入相機軌道的第一個參數 (Yaw)，在平視視角（90deg）下 360 度旋轉
+                    avatar3D.cameraOrbit = `${rotationAngle}deg 90deg 105%`;
                     
                     animationFrameId = requestAnimationFrame(playRotationLoop);
                 }
 
-                // 💡 互動二：點擊實體小開關，一鍵切換模式（徹底根除指令衝突）
+                // 💡 互動二：點擊實體黑色磨砂小開關，一鍵切換模式
                 dollRotBtn.addEventListener('click', (e) => {
                     e.stopPropagation(); // 防止點擊干擾到網頁其他元件
                     isRotationMode = !isRotationMode; // 切換布林值狀態
@@ -1394,7 +1396,8 @@
                     if (isRotationMode) {
                         // 🟢 【開啟音樂盒模式】
                         dollRotBtn.classList.add('active');
-                        dollRotBtn.textContent = "🔄 音樂盒旋轉：開";
+                        // 💡 修正：簡短文字字數
+                        dollRotBtn.textContent = "🔄 旋轉：開";
                         
                         // 先將相機角度平滑重置到目前的位置出發
                         const currentOrbit = avatar3D.getCameraOrbit();
@@ -1405,24 +1408,25 @@
                         // 啟動旋轉動畫迴圈
                         playRotationLoop();
                     } else {
-                        // 🔴 【關閉音樂盒模式，回歸正面靜置與眼神追蹤】
+                        // 🔴 【關閉音樂盒模式，回歸正面平視與全網頁眼神追蹤】
                         dollRotBtn.classList.remove('active');
-                        dollRotBtn.textContent = "🔄 音樂盒旋轉：關";
+                        // 💡 修正：簡短文字字數
+                        dollRotBtn.textContent = "🔄 旋轉：關";
                         
                         cancelAnimationFrame(animationFrameId);
                         
-                        // 讓相機視角柔和地滑回正中央正面
+                        // 讓相機視角柔和地滑回正中央正面直視
                         avatar3D.style.transition = "camera-orbit 0.4s ease";
-                        avatar3D.cameraOrbit = "0deg 75deg 105%";
+                        avatar3D.cameraOrbit = "0deg 90deg 105%";
                         setTimeout(() => {
                             avatar3D.style.transition = "none";
                         }, 400);
                     }
                 });
 
-                // 💡 互動三：精準區域追蹤（限制：只有在「旋轉關閉」且「滑鼠移到娃娃身上」時才看你）
-                avatar3D.addEventListener('mousemove', (event) => {
-                    // ⚡ 如果開啟了音樂盒旋轉，眼神追蹤功能直接「強制完全斷開」，絕不發生指令衝突！
+                // 💡 互動三：全網頁眼神跟隨技術（💡 修正：改回 window 全域監聽滑鼠）
+                window.addEventListener('mousemove', (event) => {
+                    // 如果開啟了音樂盒旋轉，眼神追蹤功能直接強制完全斷開，不發生指令衝突！
                     if (isRotationMode) return;
 
                     const rect = avatar3D.getBoundingClientRect();
@@ -1434,20 +1438,21 @@
 
                     const maxTurnAngle = 30; // 限制脖子轉動幅度最大 30 度
                     
-                    // 💡 終極眼神正向修正算式：滑鼠往左、小夏娃娃就絕對跟著百分之百深情往左看！
-                    const targetYaw = (deltaX / rect.width) * 90;
+                    // 終極眼神正向修正算式：滑鼠在全網頁動到哪，小夏就跟著百分之百同步看到哪
+                    const targetYaw = (deltaX / window.innerWidth) * 90;
                     const constrainedYaw = Math.max(-maxTurnAngle, Math.min(maxTurnAngle, targetYaw));
-                    const targetPitch = 75 + Math.max(-8, Math.min(8, (deltaY / rect.height) * 30));
+                    // 配合平視視角（90deg），讓上下看（Pitch）也圍繞在 90 度周圍微調
+                    const targetPitch = 90 + Math.max(-8, Math.min(8, (deltaY / window.innerHeight) * 30));
 
                     avatar3D.cameraOrbit = `${constrainedYaw}deg ${targetPitch}deg 105%`;
                 });
 
-                // 當滑鼠「離開娃娃身體範圍」時：眼神立刻聽話地回歸最舒服的正面中心靜置
-                avatar3D.addEventListener('mouseleave', () => {
-                    if (isRotationMode) return; // 如果正在旋轉，不受干擾
+                // 當滑鼠「離開整個瀏覽器視窗」時：眼神柔和地回歸最舒服的正面中心平視
+                document.addEventListener('mouseleave', () => {
+                    if (isRotationMode) return;
                     
                     avatar3D.style.transition = "camera-orbit 0.3s ease";
-                    avatar3D.cameraOrbit = "0deg 75deg 105%";
+                    avatar3D.cameraOrbit = "0deg 90deg 105%";
                     setTimeout(() => {
                         avatar3D.style.transition = "none";
                     }, 300);
@@ -1461,9 +1466,6 @@
                 window.addEventListener('load', init3DModel);
             }
         }
-
-
-
 
 
 
