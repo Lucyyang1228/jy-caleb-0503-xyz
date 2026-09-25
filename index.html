@@ -823,9 +823,9 @@
         .doll-3d-container {
             position: fixed;
             bottom: 5vh;               /* 距離視窗底部 5% 的高度 */
-            left: 10vw;                /* 距離視窗左側 10% 的寬度（精準切齊左側紅圈位置） */
-            width: 320px;              /* 3D 娃娃的寬度 */
-            height: 450px;             /* 3D 娃娃的高度 */
+            left: 16vw;                /* 💡 修正：往右推到 16vw，精準貼近假手機左側 */
+            width: 230px;              /* 💡 修正：縮小寬度，讓娃娃更精緻 */
+            height: 330px;             /* 💡 修正：縮小高度 */
             z-index: 2;                /* 層級設為 2，確保在手機殼底下、大背景之上 */
             display: block;            /* 預設在電腦大螢幕版顯示 */
         }
@@ -836,20 +836,19 @@
             height: 100%;
             outline: none;             /* 去除點擊時的藍色外框 */
             --poster-color: transparent; /* 載入前的暫存背景設為透明 */
-            cursor: grab;              /* 滑鼠移上去時顯示「抓取」小手 */
+            cursor: grab;              /* 滑鼠移上去時顯示「抓取」小手，提示可以旋轉 */
         }
 
         model-viewer:active {
             cursor: grabbing;          /* 滑鼠點擊拖曳時顯示「緊抓」小手 */
         }
 
-        /* 📱 完美符合規格：當螢幕寬度小於或等於 768px（手機/平版）時，強行將 3D 娃娃完全隱形且不佔空間 */
+        /* 📱 當螢幕寬度小於或等於 768px（手機/平版）時，強行將 3D 娃娃完全隱形且不佔空間 */
         @media screen and (max-width: 768px) {
             .doll-3d-container {
                 display: none !important;
             }
         }
-
 
 
     </style>
@@ -878,11 +877,11 @@
                 data-src="my_doll.glb?v=1" 
                 title="以晝 3D Q版娃娃"
                 camera-controls
+                auto-rotate
                 disable-zoom
                 environment-image="neutral"
                 exposure="1.0"
                 shadow-intensity="1.5"
-                camera-orbit="0deg 75deg 105%"
                 interaction-prompt="none">
             </model-viewer>
         </div>
@@ -1305,8 +1304,9 @@
             }).catch(e => console.log("重啟背景音樂遭攔截:", e));
         }
 
+
         // ============================================================
-        // 📦 核心 4：3D 娃娃【時序控制完全體：先解碼再載入 + 三大互動】邏輯
+        // 📦 核心 4：3D 娃娃【終極完全體：眼神修正 + 左半邊監聽 + 微調漂浮】邏輯
         // ============================================================
         const avatar3D = document.getElementById('avatar3D');
 
@@ -1331,10 +1331,11 @@
                 let startTime = Date.now();
                 let isSpinning = false;
 
-                // 💡 互動一：上下漂浮動畫
+                // 💡 互動一：上下漂浮動畫（縮小幅度，達成極致細微的優雅呼吸感）
                 function floatAnimation() {
                     const elapsedTime = (Date.now() - startTime) / 1000;
-                    const floatY = Math.sin(elapsedTime * 2.5) * 0.12; 
+                    // 💡 修正：將原本 0.12 大幅度縮小為 0.03，讓漂浮幅度變得非常精細
+                    const floatY = Math.sin(elapsedTime * 2.5) * 0.03; 
                     avatar3D.cameraTarget = `0m ${0.5 + floatY}m 0m`;
                     requestAnimationFrame(floatAnimation);
                 }
@@ -1350,19 +1351,30 @@
                     if (isSpinning) return;
                     isSpinning = true;
                     
+                    avatar3D.removeAttribute('auto-rotate'); // 點擊時暫停音樂盒旋轉
                     avatar3D.style.transition = "transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)";
                     avatar3D.style.transform = "rotateY(360deg)";
                     
                     setTimeout(() => {
                         avatar3D.style.transition = "none";
                         avatar3D.style.transform = "rotateY(0deg)";
+                        avatar3D.setAttribute('auto-rotate', ''); // 轉完後恢復音樂盒旋轉
                         isSpinning = false;
                     }, 600);
                 });
 
-                // 💡 互動三：眼神跟隨滑鼠
+                // 💡 互動三：眼神跟隨滑鼠（💡 修正：限制僅在螢幕左半邊動時才觸發）
                 window.addEventListener('mousemove', (event) => {
                     if (isSpinning) return;
+
+                    // ⚡ 核心規格限制：如果滑鼠移過螢幕中線、跑到右半邊（假手機區域），娃娃立刻收回眼神，回歸正軌
+                    if (event.clientX > window.innerWidth / 2) {
+                        avatar3D.setAttribute('auto-rotate', ''); // 恢復音樂盒慢速展示
+                        return;
+                    }
+
+                    // 只要滑鼠回到左半邊，就暫停自轉，啟動「深情眼神鎖定」
+                    avatar3D.removeAttribute('auto-rotate');
 
                     const rect = avatar3D.getBoundingClientRect();
                     const dollCenterX = rect.left + rect.width / 2;
@@ -1372,7 +1384,8 @@
                     const deltaY = event.clientY - dollCenterY;
 
                     const maxTurnAngle = 25; 
-                    const targetYaw = Math.max(-maxTurnAngle, Math.min(maxTurnAngle, (deltaX / window.innerWidth) * 90));
+                    // 💡 修正：在 Yaw 前方加上負號，徹底扭轉顛倒的眼神，讓眼神方向完全與滑鼠同步！
+                    const targetYaw = -Math.max(-maxTurnAngle, Math.min(maxTurnAngle, (deltaX / (window.innerWidth / 2)) * 90));
                     const targetPitch = 75 + Math.max(-8, Math.min(8, (deltaY / window.innerHeight) * 30));
 
                     avatar3D.cameraOrbit = `${targetYaw}deg ${targetPitch}deg 105%`;
@@ -1386,6 +1399,7 @@
                 window.addEventListener('load', init3DModel);
             }
         }
+
 
 
 
