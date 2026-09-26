@@ -1455,7 +1455,7 @@
             let lastPointerTime = Date.now();
             let fastDragDuration = 0;
             let lastTrackedTheta = 0;       
-            let accumulatedRotation = 0;    
+            let accumulatedRotation = 0;    // 💡 核心修正：此度數現在改為跨越點擊、全局累積
 
             // 💬 經典夏以晝對話台詞庫
             const clickTalks = ["哎呀，別戳了，頭暈...", "再點，下個月的零用錢扣留！", "幼稚。但...隨高興。"];
@@ -1492,6 +1492,7 @@
                     avatar3D.cameraTarget = "0m 0.65m 0m"; 
                     avatar3D.cameraOrbit = "0deg 90deg 105%";  
                 });
+
                 // 💡 互動一：自定義高性能【音樂盒極致慢速展示動畫】
                 function playRotationLoop() {
                     if (!isRotationMode || isUserDragging) return; 
@@ -1509,6 +1510,7 @@
                     isRotationMode = !isRotationMode; 
                     clearTimeout(userInteractingTimeout);
                     avatar3D.cameraTarget = "0m 0.65m 0m"; 
+                    accumulatedRotation = 0; // 💡 每次切換開關時，徹底清空累積的角度
 
                     if (isRotationMode) {
                         dollRotBtn.classList.add('active');
@@ -1536,16 +1538,26 @@
                 });
 
                 // 💡 互動三：【手動干擾與點擊彩蛋綜合機制】
+                // 🔒 修正防線：事件直接綁定在 3D 元件本體上
                 avatar3D.addEventListener('pointerdown', (e) => {
+                    // 🎯 核心防線：利用內建的 positionAndNormalAtPoint 來判斷使用者點擊的「是不是網格本體」
+                    // 如果點到的是娃娃旁邊的透明空白背景，這個函數會直接回傳 null！
+                    const hitTest = avatar3D.positionAndNormalAtPoint(e.clientX, e.clientY);
+                    if (!hitTest) {
+                        // 點到空氣了，直接阻斷，不觸發手動拖曳，也不觸發任何漂浮/連點彩蛋！
+                        return; 
+                    }
+
                     avatar3D.cameraTarget = "0m 0.65m 0m"; 
                     isUserDragging = true; 
                     cancelAnimationFrame(animationFrameId); 
                     clearTimeout(userInteractingTimeout);
 
+                    // 初始化拖曳數據
                     lastPointerX = e.clientX;
                     lastPointerTime = Date.now();
                     fastDragDuration = 0;
-                    accumulatedRotation = 0; 
+                    // 🔒 終極修正：這裡「絕對不允許」清空 accumulatedRotation，讓分段點擊可以完美延續累積！
 
                     const currentOrbit = avatar3D.getCameraOrbit();
                     if (currentOrbit) {
@@ -1572,7 +1584,8 @@
                         }
                     }
                 });
-                // 💡 監聽手動滑鼠拖曳快速甩動 + 慢速分段累積旋轉的彩蛋 4 完美完全體
+
+                // 💡 監聽手動滑鼠拖曳快速甩動 + 慢速分段累積旋轉的彩蛋 4 完全體
                 window.addEventListener('pointermove', (e) => {
                     if (!isUserDragging || !isRotationMode) return;
                     
@@ -1580,7 +1593,7 @@
                     const dt = (now - lastPointerTime) / 1000; 
                     avatar3D.cameraTarget = "0m 0.65m 0m";
 
-                    // 1. 瞬間速度檢測
+                    // 1. 瞬間狂轉速度檢測
                     if (dt > 0) {
                         const deltaX = Math.abs(e.clientX - lastPointerX);
                         const speed = deltaX / dt; 
@@ -1597,7 +1610,7 @@
                         }
                     }
                     
-                    // 2. 總角度累積檢測（快慢不限、分段不限，累積轉 3 圈觸發）
+                    // 2. 總角度累積檢測（快慢不限、分段不限，只要按著按鈕累積轉滿 1080 度就開口！）
                     const currentOrbit = avatar3D.getCameraOrbit();
                     if (currentOrbit) {
                         const currentTheta = currentOrbit.theta * (180 / Math.PI);
@@ -1613,6 +1626,7 @@
                         
                         lastTrackedTheta = currentTheta;
 
+                        // 💡 累積轉超過 3 圈 (1080度)，不論你是慢速轉、還是放開再拿起來分段轉，只要在此模式下累積滿就觸發！
                         if (accumulatedRotation >= 1080) {
                             showBubble(fastRotTalks[Math.floor(Math.random() * fastRotTalks.length)]);
                             accumulatedRotation = 0; 
@@ -1629,7 +1643,7 @@
                     if (!isUserDragging) return;
                     isUserDragging = false; 
                     fastDragDuration = 0; 
-                    accumulatedRotation = 0; 
+                    // 🔒 終極修正：手放開時「絕對不清除」角度！這樣使用者的分段轉動才能跨越多次點擊無限累積！
                     
                     const currentOrbit = avatar3D.getCameraOrbit();
                     if (currentOrbit) {
@@ -1714,7 +1728,6 @@
                 window.addEventListener('load', init3DModel);
             }
         }
-
 
 
     </script>
