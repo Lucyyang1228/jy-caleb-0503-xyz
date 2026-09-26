@@ -1490,7 +1490,7 @@
                 dollSpeechBubble.classList.add('show');
                 bubbleTimeout = setTimeout(() => {
                     dollSpeechBubble.classList.remove('show');
-                }, 2500);
+                }, 3500);
             }
 
             // 💡 新增：核心靜置計時重設魔法（只要使用者一有動作，就重新倒數）
@@ -1511,7 +1511,7 @@
                         showBubble(idleTalks[Math.floor(Math.random() * idleTalks.length)]);
                     }, 15000);
 
-                }, 5000);
+                }, 10000);
             }
 
             function init3DModel() {
