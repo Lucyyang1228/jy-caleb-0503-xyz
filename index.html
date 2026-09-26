@@ -814,6 +814,43 @@
         } /* 👈 媒體查詢大括號安全結束 */
 
 
+        /* ============================================================ */
+        /* 💻 筆電與中等螢幕專屬防護網（防擠壓、防跑版完全體）             */
+        /* ============================================================ */
+        @media screen and (min-width: 769px) and (max-width: 1440px) {
+            body {
+                /* 強制鎖定動態螢幕高度，不允許任何元件長度溢出 */
+                height: 100dvh !important;
+                overflow: hidden !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }
+
+            /* 1. 讓假手機在筆電螢幕上完美等比例縮小，騰出兩側空間 */
+            .phone-container {
+                transform: scale(0.8) !important;
+                transform-origin: center center !important;
+                flex-shrink: 0 !important;
+            }
+
+            /* 2. 修正 3D 娃娃在筆電上的定位與大小，改用絕對像素(px)防止隨視窗拉伸亂跑 */
+            .doll-3d-container {
+                left: 6% !important;         /* 靠左固定，拉開與中間假手機的距離 */
+                bottom: 5% !important;       /* 固定切齊底部 */
+                transform: scale(0.85) !important; /* 娃娃也同步微縮 85%，精緻又不佔空間 */
+                transform-origin: left bottom !important;
+            }
+
+            /* 3. 音樂控制盒在筆電版也微調一下，避免撞到縮小後的手機頂部 */
+            .music-control-box {
+                top: 20px !important;
+                right: 20px !important;
+                transform: scale(0.9) !important;
+            }
+        }
+
+
 
         /* ============================================================ */
         /* 📦 3D 娃娃組件與開關樣式（僅在大螢幕電腦版顯示）                 */
