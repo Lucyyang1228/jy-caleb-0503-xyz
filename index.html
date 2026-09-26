@@ -1428,7 +1428,7 @@
         const avatar3D = document.getElementById('avatar3D');
         const dollRotBtn = document.getElementById('dollRotBtn');
         const dollSpeechBubble = document.getElementById('dollSpeechBubble');
-        const dollFloatFilm = document.getElementById('dollFloatFilm'); // 💡 新增：抓取隔離動畫膜
+        const dollFloatFilm = document.getElementById('dollFloatFilm'); 
 
         if (avatar3D && dollRotBtn && dollFloatFilm) {
             let isRotationMode = false; 
@@ -1450,10 +1450,12 @@
             let lastMoveTime = Date.now();
             let swingStartTime = null;
 
-            // 💡 快速手動甩動旋轉的計時變數
+            // 💡 快速手動甩動旋轉與累積旋轉判定變數
             let lastPointerX = 0;
             let lastPointerTime = Date.now();
             let fastDragDuration = 0;
+            let lastTrackedTheta = 0;       
+            let accumulatedRotation = 0;    
 
             // 💬 經典夏以晝對話台詞庫
             const clickTalks = ["哎呀，別戳了，頭暈...", "再點，下個月的零用錢扣留！", "幼稚。但...隨高興。"];
@@ -1543,9 +1545,14 @@
                     lastPointerX = e.clientX;
                     lastPointerTime = Date.now();
                     fastDragDuration = 0;
+                    accumulatedRotation = 0; 
+
+                    const currentOrbit = avatar3D.getCameraOrbit();
+                    if (currentOrbit) {
+                        lastTrackedTheta = currentOrbit.theta * (180 / Math.PI);
+                    }
 
                     if (!isRotationMode) {
-                        // 🚀 修正：將漂浮的 class 加在獨立的動畫膜上，不再撕裂排版
                         if (!isFloating) {
                             isFloating = true;
                             dollFloatFilm.classList.add('doll-film-floating-active');
@@ -1565,14 +1572,15 @@
                         }
                     }
                 });
-
-                // 💡 監聽手動滑鼠拖曳快速甩動娃娃的彩蛋 4 檢測
+                // 💡 監聽手動滑鼠拖曳快速甩動 + 慢速分段累積旋轉的彩蛋 4 完美完全體
                 window.addEventListener('pointermove', (e) => {
                     if (!isUserDragging || !isRotationMode) return;
                     
                     const now = Date.now();
                     const dt = (now - lastPointerTime) / 1000; 
-                    
+                    avatar3D.cameraTarget = "0m 0.65m 0m";
+
+                    // 1. 瞬間速度檢測
                     if (dt > 0) {
                         const deltaX = Math.abs(e.clientX - lastPointerX);
                         const speed = deltaX / dt; 
@@ -1582,9 +1590,33 @@
                             if (fastDragDuration >= 0.8) { 
                                 showBubble(fastRotTalks[Math.floor(Math.random() * fastRotTalks.length)]);
                                 fastDragDuration = 0; 
+                                accumulatedRotation = 0; 
                             }
                         } else {
                             fastDragDuration = Math.max(0, fastDragDuration - dt);
+                        }
+                    }
+                    
+                    // 2. 總角度累積檢測（快慢不限、分段不限，累積轉 3 圈觸發）
+                    const currentOrbit = avatar3D.getCameraOrbit();
+                    if (currentOrbit) {
+                        const currentTheta = currentOrbit.theta * (180 / Math.PI);
+                        let angleDiff = Math.abs(currentTheta - lastTrackedTheta);
+                        
+                        if (angleDiff > 180) {
+                            angleDiff = 360 - angleDiff;
+                        }
+                        
+                        if (angleDiff > 0.1 && angleDiff < 90) { 
+                            accumulatedRotation += angleDiff;
+                        }
+                        
+                        lastTrackedTheta = currentTheta;
+
+                        if (accumulatedRotation >= 1080) {
+                            showBubble(fastRotTalks[Math.floor(Math.random() * fastRotTalks.length)]);
+                            accumulatedRotation = 0; 
+                            fastDragDuration = 0;    
                         }
                     }
                     
@@ -1597,6 +1629,7 @@
                     if (!isUserDragging) return;
                     isUserDragging = false; 
                     fastDragDuration = 0; 
+                    accumulatedRotation = 0; 
                     
                     const currentOrbit = avatar3D.getCameraOrbit();
                     if (currentOrbit) {
@@ -1681,7 +1714,6 @@
                 window.addEventListener('load', init3DModel);
             }
         }
-
 
 
 
