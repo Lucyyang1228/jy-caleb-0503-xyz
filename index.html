@@ -1430,7 +1430,6 @@
             }).catch(e => console.log("重啟背景音樂遭攔截:", e));
         }
 
-
         // ============================================================
         // 📦 核心 4：3D 娃娃【純淨重構終極版：人物上推現腳 + 按鈕精簡調淡 + 上下眼神修正 + 互動彩蛋完全體】
         // ============================================================
@@ -1466,10 +1465,23 @@
             let lastTrackedTheta = 0;       
             let accumulatedRotation = 0;    
 
+            // 💡 新增：全自動靜置（掛機）彩蛋控制變數
+            let idleTimeout = null;         // 控制前5秒的首發計時器
+            let idleInterval = null;        // 控制後續每15秒的循環計時器
+
             // 💬 經典夏以晝對話台詞庫
             const clickTalks = ["只是一點點觸碰麼? 我覺得我還可以擁有更多…", "抓住一隻亂戳的手，罰它今天都不許掙脫。", "已經活動這麼久了，該休息一會兒了。"];
             const swingTalks = ["在測試我的平衡能力？你忘了我是飛行員了？", "有種盪鞦韆的感覺，晃晃悠悠的...走，去實際體驗一下。", "我不是存錢罐，你再怎麼搖也搖不出硬幣的。"];
             const fastRotTalks = ["最近對旋轉特別有興趣？那走吧，我帶你去玩旋轉木馬。", "據說向日葵會跟著太陽一起旋轉。大概是因為……追隨溫暖是本能，我也不能例外。", "先停下來，再轉下去你可就要頭暈了。"];
+            
+            // 💬 新增：靜置無人操作時的專屬台詞庫（給予滿滿的陪伴感 🥱）
+            const idleTalks = [
+                "我應該沒有對你使用Evol定身吧？怎麼一動也不動的。",
+                "咳咳，這突如其來的沉默可以結束了。",
+                "又在悄悄醞釀什麼惡作劇？",
+                "我們果然很默契，連發呆的頻率都保持一致。",
+                "你這是進入了深度思考模式，還是瞌睡預備狀態？"
+            ];
 
             // 💬 对话框显示防干扰逻辑
             function showBubble(text) {
@@ -1479,6 +1491,27 @@
                 bubbleTimeout = setTimeout(() => {
                     dollSpeechBubble.classList.remove('show');
                 }, 2500);
+            }
+
+            // 💡 新增：核心靜置計時重設魔法（只要使用者一有動作，就重新倒數）
+            function resetIdleTimer() {
+                // 先清除所有舊的掛機計時器
+                clearTimeout(idleTimeout);
+                clearInterval(idleInterval);
+
+                // 只有在「非自轉模式」且「使用者沒有手動拖曳」的情況下，才啟動掛機對話
+                if (isRotationMode || isUserDragging) return;
+
+                // ⏳ 第一防線：靜置滿 5 秒（5000 毫秒），首發跳出第一句掛機對話
+                idleTimeout = setTimeout(() => {
+                    showBubble(idleTalks[Math.floor(Math.random() * idleTalks.length)]);
+
+                    // ⏳ 第二防線：5秒觸發後，立刻開啟每 15 秒（15000 毫秒）的循環碎碎念機制
+                    idleInterval = setInterval(() => {
+                        showBubble(idleTalks[Math.floor(Math.random() * idleTalks.length)]);
+                    }, 15000);
+
+                }, 5000);
             }
 
             function init3DModel() {
@@ -1500,6 +1533,7 @@
                     console.log("🌸 [3D 成功通知] 夏以晝娃娃已排除所有衝突，成功在指定位置現形！");
                     avatar3D.cameraTarget = "0m 0.65m 0m"; 
                     avatar3D.cameraOrbit = "0deg 90deg 105%";  
+                    resetIdleTimer(); // 💡 模型載入成功後，立刻啟動靜置計時
                 });
 
                 // 💡 互動一：自定義高性能【音樂盒極致慢速展示動畫】
@@ -1519,11 +1553,14 @@
                     isRotationMode = !isRotationMode; 
                     clearTimeout(userInteractingTimeout);
                     avatar3D.cameraTarget = "0m 0.65m 0m"; 
-                    accumulatedRotation = 0; // 每次切換開關時重新清空累積角度
 
                     if (isRotationMode) {
                         dollRotBtn.classList.add('active');
                         dollRotBtn.textContent = "⏸️ 靜止";
+                        
+                        // 旋轉模式下，不觸發無人靜置對話，強行清空
+                        clearTimeout(idleTimeout);
+                        clearInterval(idleInterval);
                         
                         const currentOrbit = avatar3D.getCameraOrbit();
                         if (currentOrbit) {
@@ -1542,21 +1579,23 @@
                         avatar3D.cameraOrbit = "0deg 90deg 105%";
                         setTimeout(() => {
                             avatar3D.style.transition = "none";
+                            resetIdleTimer(); // 💡 回歸靜止模式後，重新召喚靜置計時
                         }, 400);
                     }
                 });
-
                 // 💡 互動三：【手動干擾與點擊彩蛋綜合機制】
                 avatar3D.addEventListener('pointerdown', (e) => {
-                    // 🎯 王道修正：點擊目標必須精確是 model-viewer 本體內部，排除旁邊的大容器
                     if (e.target.tagName !== 'MODEL-VIEWER') return;
+
+                    // 使用者點擊或開始手動操作，立刻打斷靜置計時
+                    clearTimeout(idleTimeout);
+                    clearInterval(idleInterval);
 
                     avatar3D.cameraTarget = "0m 0.65m 0m"; 
                     isUserDragging = true; 
                     cancelAnimationFrame(animationFrameId); 
                     clearTimeout(userInteractingTimeout);
 
-                    // 初始化拖曳追蹤數據
                     lastPointerX = e.clientX;
                     lastPointerTime = Date.now();
                     fastDragDuration = 0;
@@ -1567,7 +1606,6 @@
                     }
 
                     if (!isRotationMode) {
-                        // 🚀 點擊彈跳 3 次漂浮復活！
                         if (!isFloating) {
                             isFloating = true;
                             dollFloatFilm.classList.add('doll-film-floating-active');
@@ -1577,7 +1615,6 @@
                             }, 3200); 
                         }
 
-                        // 🚀 連點 3 次對話框
                         clickCount++;
                         clearTimeout(clickTimeout);
                         clickTimeout = setTimeout(() => { clickCount = 0; }, 400); 
@@ -1597,7 +1634,6 @@
                     const dt = (now - lastPointerTime) / 1000; 
                     avatar3D.cameraTarget = "0m 0.65m 0m";
 
-                    // 1. 瞬間狂轉速度檢測
                     if (dt > 0) {
                         const deltaX = Math.abs(e.clientX - lastPointerX);
                         const speed = deltaX / dt; 
@@ -1614,7 +1650,6 @@
                         }
                     }
                     
-                    // 2. 總角度累積檢測（徹底移除放開清除，支援換手分段慢速嚕，累積滿 3 圈就吐台詞！）
                     const currentOrbit = avatar3D.getCameraOrbit();
                     if (currentOrbit) {
                         const currentTheta = currentOrbit.theta * (180 / Math.PI);
@@ -1624,7 +1659,6 @@
                             angleDiff = 360 - angleDiff;
                         }
                         
-                        // 確實有移動時，就源源不絕計入累積
                         if (angleDiff > 0.05 && angleDiff < 90) { 
                             accumulatedRotation += angleDiff;
                         }
@@ -1647,7 +1681,6 @@
                     if (!isUserDragging) return;
                     isUserDragging = false; 
                     fastDragDuration = 0; 
-                    // 🔒 核心修正：手放開時絕對不清除角度，讓分段慢慢嚕的角度可以完美延續累積
                     
                     const currentOrbit = avatar3D.getCameraOrbit();
                     if (currentOrbit) {
@@ -1658,14 +1691,20 @@
                     userInteractingTimeout = setTimeout(() => {
                         if (isRotationMode && !isUserDragging) {
                             playRotationLoop();
+                        } else if (!isRotationMode) {
+                            // 💡 鬆開手且處於靜止模式，重新開啟靜置計時器
+                            resetIdleTimer();
                         }
                     }, 1200);
                 };
                 window.addEventListener('pointerup', handlePointerUp);
 
-                // 💡 互動四：全網頁眼神跟隨技術
+                // 💡 互動四：全網頁眼神跟隨技術（每次滑鼠晃動，均視為正在操作，刷新掛機時間）
                 window.addEventListener('mousemove', (event) => {
                     if (isRotationMode || isUserDragging) return;
+
+                    // 🎯 核心防線：只要使用者的滑鼠在網頁上移動，就立刻重設掛機時間，防止看著看著突然跳出靜置台詞
+                    resetIdleTimer();
 
                     avatar3D.cameraTarget = "0m 0.65m 0m";
 
@@ -1723,6 +1762,8 @@
                     
                     swingStartTime = null;
                     swingDirectionChanges = 0;
+                    // 滑鼠離開網頁視窗也算靜置，重新追蹤計時
+                    resetIdleTimer();
                 });
             }
 
