@@ -745,31 +745,29 @@
 
 
         /* ============================================================ */
-        /* 1. CSS 樣式：📱 手機版專屬防擋網（合體完全體：完美保留便利貼＋極致避擋） */
+        /* 📱 1. 手機與【平板直屏】專屬防護網 (寬度 ≤ 834px，如 iPad 直向) */
         /* ============================================================ */
-        @media screen and (max-width: 768px) {
-            
-            /* 1. 調整手機版全網頁大背景 */
+        @media screen and (max-width: 834px) {
             body {
                 background-position: center center !important; 
                 background-size: cover !important; 
                 background-attachment: scroll;
-                
                 display: flex !important;
                 justify-content: center !important;
                 align-items: center !important;
-                
-                /* 💡 核心魔法一：改成 100dvh，動態扣除三星導航列高度 */
                 height: 100dvh !important;
                 overflow: hidden !important;
-                
-                /* 💡 核心修改一：把底部的留白緩衝（第三個數字）從 0 像素放大到 45px！
-                   這道隱形的牆會強行把假手機從最底端往上推高，徹底脫離三星按鈕的干擾 */
+                /* 💡 完美保留：底部 45px 隱形防護牆，強行推高避開三星/iOS底欄 */
                 padding: 15px 0 45px 0 !important;
                 box-sizing: border-box !important;
             }
 
-            /* 2. 物理縮放控制 */
+            /* 🧱 窄螢幕下強行隱藏 3D 娃娃，絕對不與假手機大撞車 */
+            .doll-3d-container {
+                display: none !important;
+            }
+
+            /* 💡 縮放控制：在手機/平板直屏上，讓手機保持精巧比例懸浮 */
             .phone-container {
                 position: relative !important;
                 width: 390px !important; 
@@ -777,16 +775,12 @@
                 border: 13px solid #333 !important; 
                 border-radius: 40px !important;
                 box-shadow: 0px 20px 40px rgba(0,0,0,0.5) !important;
-                
-                /* 💡 核心修改二：將物理縮放比例從 0.78 微調縮小到 0.74！
-                   讓整台手機稍微變精巧一點，配合底部的推力，就能完美在三星按鈕上方懸浮 */
-                transform: scale(0.74) !important; 
-                
+                transform: scale(0.74) !important; /* 💡 完美維持你最舒服的 0.74 縮放比例 */
                 transform-origin: center center !important; 
                 flex-shrink: 0 !important; 
             }
 
-            /* 3. 音樂控制盒：配合新版高度微調 */
+            /* 🎵 音樂控制盒：手機版微調 */
             .music-control-box {
                 top: 15px !important; 
                 right: 15px !important;
@@ -797,10 +791,9 @@
                 font-size: 10px !important;
             }
 
-            /* 4. 🌸 完美保留：便利貼牆防護（再也不會因為覆蓋而失效了！） */
+            /* 🌸 完美保留：便利貼牆防護 */
             .sticky-wall-container {
                 width: 88% !important;
-                /* 💡 核心修改三：配合假手機微縮，把手機版的大色塊最高高度從 75% 稍微調勻到 72% */
                 max-height: 72% !important;
                 padding: 20px 16px !important;
                 box-sizing: border-box !important;
@@ -811,15 +804,13 @@
             .sticky-note-text {
                 font-size: 13px !important;
             }
-        } /* 👈 媒體查詢大括號安全結束 */
-
+        }
 
         /* ============================================================ */
-        /* 💻 筆電與中等螢幕專屬防護網（防擠壓、防跑版完全體）             */
+        /* 📟 2. 【平板橫屏】專屬防護網 (寬度 835px ~ 1194px，如 iPad 橫向) */
         /* ============================================================ */
-        @media screen and (min-width: 769px) and (max-width: 1440px) {
+        @media screen and (min-width: 835px) and (max-width: 1194px) and (orientation: landscape) {
             body {
-                /* 強制鎖定動態螢幕高度，不允許任何元件長度溢出 */
                 height: 100dvh !important;
                 overflow: hidden !important;
                 display: flex !important;
@@ -827,22 +818,46 @@
                 align-items: center !important;
             }
 
-            /* 1. 讓假手機在筆電螢幕上完美等比例縮小，騰出兩側空間 */
+            /* 橫向平板也隱藏娃娃！因為高度太窄，避免娃娃插在手機螢幕中 */
+            .doll-3d-container {
+                display: none !important;
+            }
+
+            /* 假手機能自動縮小至 0.72 漂亮塞進矮胖的橫向平板畫面中 */
+            .phone-container {
+                transform: scale(0.72) !important;
+                transform-origin: center center !important;
+                flex-shrink: 0 !important;
+            }
+        }
+
+        /* ============================================================ */
+        /* 💻 3. 筆電專屬防護網 (寬度 1195px ~ 1440px)                  */
+        /* ============================================================ */
+        @media screen and (min-width: 1195px) and (max-width: 1440px) {
+            body {
+                height: 100dvh !important;
+                overflow: hidden !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }
+
             .phone-container {
                 transform: scale(0.8) !important;
                 transform-origin: center center !important;
                 flex-shrink: 0 !important;
             }
 
-            /* 2. 修正 3D 娃娃在筆電上的定位與大小，改用絕對像素(px)防止隨視窗拉伸亂跑 */
+            /* 筆電版完美保留 3D 娃娃，並安全固定在左下角，不與手機打架 */
             .doll-3d-container {
-                left: 6% !important;         /* 靠左固定，拉開與中間假手機的距離 */
-                bottom: 5% !important;       /* 固定切齊底部 */
-                transform: scale(0.85) !important; /* 娃娃也同步微縮 85%，精緻又不佔空間 */
+                display: flex !important; /* 確保筆電正常顯示 */
+                left: 6% !important;         
+                bottom: 5% !important;       
+                transform: scale(0.85) !important; 
                 transform-origin: left bottom !important;
             }
 
-            /* 3. 音樂控制盒在筆電版也微調一下，避免撞到縮小後的手機頂部 */
             .music-control-box {
                 top: 20px !important;
                 right: 20px !important;
