@@ -1582,7 +1582,7 @@
                         clearTimeout(clickTimeout);
                         clickTimeout = setTimeout(() => { clickCount = 0; }, 400); 
 
-                        if (clickCount >= 3) {
+                        if (clickCount >= 2) {
                             showBubble(clickTalks[Math.floor(Math.random() * clickTalks.length)]);
                             clickCount = 0; 
                         }
@@ -1631,7 +1631,7 @@
                         
                         lastTrackedTheta = currentTheta;
 
-                        if (accumulatedRotation >= 540) {
+                        if (accumulatedRotation >= 360) {
                             showBubble(fastRotTalks[Math.floor(Math.random() * fastRotTalks.length)]);
                             accumulatedRotation = 0; 
                             fastDragDuration = 0;    
