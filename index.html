@@ -1743,7 +1743,7 @@
                     }
                     lastMoveTime = now;
 
-                    if (swingStartTime && (now - swingStartTime >= 2000) && swingDirectionChanges >= 4) {
+                    if (swingStartTime && (now - swingStartTime >= 2000) && swingDirectionChanges >= 6) {
                         showBubble(swingTalks[Math.floor(Math.random() * swingTalks.length)]);
                         swingStartTime = null; 
                         swingDirectionChanges = 0;
