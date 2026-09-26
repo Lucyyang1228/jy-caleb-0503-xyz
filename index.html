@@ -877,6 +877,66 @@
             cursor: grabbing;
         }
 
+        /* 🌸 新增：娃娃頭上的輕透毛玻璃對話框 */
+        .doll-speech-bubble {
+            position: absolute;
+            top: 10px; /* 完美懸浮在娃娃頭頂上方 */
+            left: 50%;
+            transform: translateX(-50%) scale(0.8);
+            width: 85%;
+            background-color: rgba(255, 255, 255, 0.4); /* 40% 輕透半透明白 */
+            backdrop-filter: blur(8px);                 /* 蘋果毛玻璃模糊 */
+            -webkit-backdrop-filter: blur(8px);
+            color: #2c2c2c;                             /* 高級深灰字 */
+            border: 1px solid rgba(255, 255, 255, 0.25); /* 極細微白邊框 */
+            padding: 8px 12px;
+            box-sizing: border-box;
+            border-radius: 14px;
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.12);
+            font-size: 11px;
+            font-family: "Microsoft JhengHei", sans-serif;
+            font-weight: bold;
+            text-align: center;
+            z-index: 5;
+            pointer-events: none;                       /* 滑鼠穿透不干擾點擊 */
+            opacity: 0;                                 /* 預設隱形 */
+            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* 當對話框被激活顯示時 */
+        .doll-speech-bubble.show {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+
+        /* 🌸 新增：小對話框底部的輕透小箭頭 */
+        .doll-speech-bubble::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 5px 5px 0;
+            border-style: solid;
+            border-color: rgba(255, 255, 255, 0.4) transparent;
+            display: block;
+            width: 0;
+        }
+
+        /* 🚀 新增：點擊時娃娃整體往上漂浮的平滑動畫 */
+        @keyframes dollFloatEffect {
+            0% { transform: translateY(0); }
+            30% { transform: translateY(-25px); } /* 溫柔向上漂浮 25px */
+            50% { transform: translateY(-25px); } /* 在空中停留一下 */
+            100% { transform: translateY(0); }    /* 平滑降落 */
+        }
+
+        /* 當被 JavaScript 加上此類別時觸發漂浮 */
+        .doll-floating-active {
+            animation: dollFloatEffect 2.5s ease-in-out forwards;
+        }
+
+
         /* 📱 當螢幕寬度小於或等於 768px 時，強行將 3D 娃娃與開關完全隱形 */
         @media screen and (max-width: 768px) {
             .doll-3d-container {
@@ -904,22 +964,29 @@
 <body>
 
         <!-- ================= 📦 左下角 3D 娃娃主結構 ================= -->
-        <!-- 將 src 改為 data-src 以防止時序衝突，等解碼器準備好才載入 -->
         <div class="doll-3d-container">
             <button id="dollRotBtn" class="doll-rot-btn" title="切換音樂盒模式">🔄 旋轉</button>
-            <model-viewer 
-                id="avatar3D"
-                data-src="my_doll.glb?v=1" 
-                title="以晝 3D Q版娃娃"
-                camera-controls
-                disable-zoom
-                environment-image="neutral"
-                exposure="1.0"
-                shadow-intensity="1.5"
-                interaction-prompt="none">
-            </model-viewer>
+            <div id="avatar3DContainer" style="width: 100%; height: 330px; position: relative;">
+                
+                <!-- 💬 新增：夏以晝專屬互動對話框 -->
+                <div id="dollSpeechBubble" class="doll-speech-bubble"></div>
+                
+                <!-- 💡 修正版 model-viewer：新增重要防線阻斷點擊視角偏移 -->
+                <model-viewer 
+                    id="avatar3D"
+                    data-src="my_doll.glb?v=1" 
+                    title="以晝 3D Q版娃娃"
+                    camera-controls
+                    disable-zoom
+                    disable-tap
+                    camera-target="0m 0.65m 0m"
+                    environment-image="neutral"
+                    exposure="1.0"
+                    shadow-intensity="1.5"
+                    interaction-prompt="none">
+                </model-viewer>
+            </div>
         </div>
-
 
 
     <!-- 手機外框 -->
@@ -1341,21 +1408,55 @@
 
 
         // ============================================================
-        // 📦 核心 4：3D 娃娃【純淨重構終極版：人物上推現腳 + 按鈕精簡調淡 + 上下眼神修正】
+        // 📦 核心 4：3D 娃娃【純淨重構終極版：人物上推現腳 + 按鈕精簡調淡 + 上下眼神修正 + 互動彩蛋完全體】
         // ============================================================
         const avatar3D = document.getElementById('avatar3D');
         const dollRotBtn = document.getElementById('dollRotBtn');
+        const dollSpeechBubble = document.getElementById('dollSpeechBubble');
 
         if (avatar3D && dollRotBtn) {
-            let isRotationMode = false; // 預設「關閉」音樂盒旋轉模式
-            let rotationAngle = 0;      // 記錄旋轉的度數
+            let isRotationMode = false; 
+            let rotationAngle = 0;      
             let animationFrameId = null;
-            let userInteractingTimeout = null; // 用來處理手動放開後自動恢復的計時器
-            let isUserDragging = false;       // 標記使用者目前是不是正按著滑鼠手動拖曳
+            let userInteractingTimeout = null; 
+            let isUserDragging = false;       
+
+            // 💡 新增：彩蛋行為控制變數
+            let isFloating = false;         // 追蹤是否正在漂浮中
+            let clickCount = 0;             // 計算點擊次數
+            let clickTimeout = null;        // 連點計時器
+            let bubbleTimeout = null;       // 對話框自動隱藏計時器
+
+            // 💡 新增：左右擺動跟隨計時變數
+            let lastYaw = 0;
+            let swingDirectionChanges = 0;
+            let lastDirection = 0;          // -1代表左，1代表右
+            let lastMoveTime = Date.now();
+            let swingStartTime = null;
+
+            // 💡 新增：快速旋轉計時變數
+            let lastTheta = 0;
+            let fastRotationDuration = 0;
+            let lastRotationCheckTime = Date.now();
+
+            // 💬 經典夏以晝對話台詞庫
+            const clickTalks = ["哎呀，別戳了，頭暈...", "再點，下個月的零用錢扣留！", "幼稚。但...隨你高興。"];
+            const swingTalks = ["你這樣晃，我的脖子快扭到了...", "滑鼠移得這麼快，在找什麼呢？", "好了，別逗我了。"];
+            const fastRotTalks = ["轉這麼快，想把我當陀螺嗎？", "這就是你觀賞娃娃的方式？", "暈頭轉向了...快停下！"];
+
+            // 💬 對話框顯示防干擾邏輯
+            function showBubble(text) {
+                clearTimeout(bubbleTimeout);
+                dollSpeechBubble.textContent = text;
+                dollSpeechBubble.classList.add('show');
+                // 顯示 2.5 秒後自動收回
+                bubbleTimeout = setTimeout(() => {
+                    dollSpeechBubble.classList.remove('show');
+                }, 2500);
+            }
 
             function init3DModel() {
                 try {
-                    // 1. 強迫第一步：在網頁載入檔案前，必須先完成解碼鑰匙的註冊
                     if (window.MeshoptDecoder) {
                         avatar3D.registerExternalExtension('EXT_meshopt_compression', window.MeshoptDecoder);
                         console.log("⚡ [3D 時序控制] Meshopt 解碼鑰匙優先註冊成功！");
@@ -1364,42 +1465,64 @@
                     console.log("⚠️ 解碼器註冊時發生異常:", e);
                 }
 
-                // 2. 強迫第二步：解碼鑰匙註冊完畢後，才正式把 3D 娃娃的檔案網址灌進去載入
                 const realSrc = avatar3D.getAttribute('data-src');
                 if (realSrc) {
                     avatar3D.src = realSrc;
                 }
 
-                // 娃娃完全載入成功後的通知
                 avatar3D.addEventListener('load', () => {
                     console.log("🌸 [3D 成功通知] 夏以晝娃娃已排除所有衝突，成功在指定位置現形！");
-                    // 💡 修正：將相機注視高度下調到 0.65m，這會強行把整個娃娃身體往上推高，完美露出被切掉的腳底！
+                    // 🔒 雙重防線：加載完畢與互動全環節，死死鎖定中心點，防止視角跑掉
                     avatar3D.cameraTarget = "0m 0.65m 0m"; 
-                    avatar3D.cameraOrbit = "0deg 90deg 105%";  // 預設正面平視
+                    avatar3D.cameraOrbit = "0deg 90deg 105%";  
                 });
 
                 // 💡 互動一：自定義高性能【音樂盒極致慢速展示動畫】
                 function playRotationLoop() {
-                    // 如果被關閉了，或者使用者目前正按著滑鼠在手動拖曳看背後，立刻停下自轉
                     if (!isRotationMode || isUserDragging) return; 
                     
-                    // 保持精品般極度緩慢、優雅的 0.4 速率自轉展示
                     rotationAngle = (rotationAngle - 0.4) % 360;
+                    // 🔒 旋轉時，死死抓牢相機中心點目標不放
+                    avatar3D.cameraTarget = "0m 0.65m 0m";
                     avatar3D.cameraOrbit = `${rotationAngle}deg 90deg 105%`;
                     
+                    // 🔄 彩蛋 4 檢測：旋轉模式下的旋轉速度觀測
+                    const now = Date.now();
+                    const dt = (now - lastRotationCheckTime) / 1000;
+                    lastRotationCheckTime = now;
+
+                    const currentOrbit = avatar3D.getCameraOrbit();
+                    if (currentOrbit && dt > 0) {
+                        const currentTheta = currentOrbit.theta * (180 / Math.PI);
+                        let diff = Math.abs(currentTheta - lastTheta);
+                        if (diff > 180) diff = 360 - diff; // 處理跨越360度邊界
+                        
+                        const speed = diff / dt;
+                        // 如果速度超過 150 度/秒（代表使用者正在快速撥動或拖曳娃娃）
+                        if (speed > 150) {
+                            fastRotationDuration += dt;
+                            if (fastRotationDuration >= 1.5) { // 持續快速轉動超過1.5秒
+                                showBubble(fastRotTalks[Math.floor(Math.random() * fastRotTalks.length)]);
+                                fastRotationDuration = 0; // 觸發後重設
+                            }
+                        } else {
+                            fastRotationDuration = Math.max(0, fastRotationDuration - dt);
+                        }
+                        lastTheta = currentTheta;
+                    }
+
                     animationFrameId = requestAnimationFrame(playRotationLoop);
                 }
 
                 // 💡 互動二：點擊實體黑色磨砂小開關，切換 旋轉 / 靜止 狀態
                 dollRotBtn.addEventListener('click', (e) => {
-                    e.stopPropagation(); // 防止點擊干擾到網頁其他元件
+                    e.stopPropagation(); 
                     isRotationMode = !isRotationMode; 
                     clearTimeout(userInteractingTimeout);
+                    avatar3D.cameraTarget = "0m 0.65m 0m"; // 鎖死中心
 
                     if (isRotationMode) {
-                        // 🟢 【開啟音樂盒慢速旋轉】
                         dollRotBtn.classList.add('active');
-                        // 保持您指定的靜止字樣
                         dollRotBtn.textContent = "⏸️ 靜止";
                         
                         const currentOrbit = avatar3D.getCameraOrbit();
@@ -1410,14 +1533,11 @@
                         isUserDragging = false;
                         playRotationLoop();
                     } else {
-                        // 🔴 【切換回靜止狀態：回歸正面平視與全網頁眼神追蹤】
                         dollRotBtn.classList.remove('active');
-                        // 💡 修正：文字縮短為只有「ICON+旋轉」
                         dollRotBtn.textContent = "🔄 旋轉";
                         
                         cancelAnimationFrame(animationFrameId);
                         
-                        // 讓相機視角柔和地滑回正中央正面平視直視
                         avatar3D.style.transition = "camera-orbit 0.4s ease";
                         avatar3D.cameraOrbit = "0deg 90deg 105%";
                         setTimeout(() => {
@@ -1426,16 +1546,41 @@
                     }
                 });
 
-                // 💡 互動三：【旋轉模式下的手動干擾與自動恢復機制】
-                avatar3D.addEventListener('pointerdown', () => {
-                    if (!isRotationMode) return;
+                // 💡 互動三：【手動干擾與點擊彩蛋綜合機制】
+                avatar3D.addEventListener('pointerdown', (e) => {
+                    avatar3D.cameraTarget = "0m 0.65m 0m"; // 鎖死中心點
                     isUserDragging = true; 
                     cancelAnimationFrame(animationFrameId); 
                     clearTimeout(userInteractingTimeout);
+
+                    // 🔒 靜止模式下的點擊彩蛋（1 & 2）
+                    if (!isRotationMode) {
+                        // 🚀 彩蛋 1：點擊漂浮（且防重複觸發）
+                        if (!isFloating) {
+                            isFloating = true;
+                            avatar3D.classList.add('doll-floating-active');
+                            // 2.5 秒動畫播完後解鎖，允許再次漂浮
+                            setTimeout(() => {
+                                avatar3D.classList.remove('doll-floating-active');
+                                isFloating = false;
+                            }, 2500);
+                        }
+
+                        // 🚀 彩蛋 2：連點 3 次觸發頭頂對話框
+                        clickCount++;
+                        clearTimeout(clickTimeout);
+                        clickTimeout = setTimeout(() => { clickCount = 0; }, 400); // 400毫秒內沒點下一次就歸零
+
+                        if (clickCount >= 3) {
+                            showBubble(clickTalks[Math.floor(Math.random() * clickTalks.length)]);
+                            clickCount = 0; // 觸發後重設
+                        }
+                    }
                 });
 
                 const handlePointerUp = () => {
-                    if (!isRotationMode || !isUserDragging) return;
+                    avatar3D.cameraTarget = "0m 0.65m 0m"; // 鎖死中心點
+                    if (!isUserDragging) return;
                     isUserDragging = false; 
                     
                     const currentOrbit = avatar3D.getCameraOrbit();
@@ -1443,7 +1588,6 @@
                         rotationAngle = currentOrbit.theta * (180 / Math.PI);
                     }
 
-                    // 滑鼠放開後，等 1.2 秒溫柔地自動恢復音樂盒慢速自轉
                     clearTimeout(userInteractingTimeout);
                     userInteractingTimeout = setTimeout(() => {
                         if (isRotationMode && !isUserDragging) {
@@ -1453,10 +1597,12 @@
                 };
                 window.addEventListener('pointerup', handlePointerUp);
 
-                // 💡 互動四：全網頁眼神跟隨技術（全域監聽滑鼠，且眼神正向修正）
+                // 💡 互動四：全網頁眼神跟隨技術（並新增左右搖擺跟隨彩蛋 3）
                 window.addEventListener('mousemove', (event) => {
-                    // 如果開啟了音樂盒旋轉，或者使用者正在手動拖曳，眼神功能強制中斷防衝突
                     if (isRotationMode || isUserDragging) return;
+
+                    // 確保每一次滑鼠動彈都重申一次中心點，防止被模型內部行為帶偏
+                    avatar3D.cameraTarget = "0m 0.65m 0m";
 
                     const rect = avatar3D.getBoundingClientRect();
                     const dollCenterX = rect.left + rect.width / 2;
@@ -1465,31 +1611,60 @@
                     const deltaX = event.clientX - dollCenterX;
                     const deltaY = event.clientY - dollCenterY;
 
-                    const maxTurnAngle = 30; // 限制脖子轉動幅度最大 30 度
-                    
-                    // 左右視線跟隨算式（維持您已經測試正確的方向）
+                    const maxTurnAngle = 30; 
                     const targetYaw = -(deltaX / window.innerWidth) * 90;
                     const constrainedYaw = Math.max(-maxTurnAngle, Math.min(maxTurnAngle, targetYaw));
-                    
-                    // 💡 修正：將原本的「+」號徹底更正為「-」號！徹底反轉上下的顛倒視線，滑鼠往上、他就百分之百同步抬頭往上看！
                     const targetPitch = 90 - Math.max(-8, Math.min(8, (deltaY / window.innerHeight) * 30));
 
                     avatar3D.cameraOrbit = `${constrainedYaw}deg ${targetPitch}deg 105%`;
+
+                    // 🚀 彩蛋 3：持續左右左右滑鼠調戲跟隨檢測（3-5秒判定）
+                    const now = Date.now();
+                    // 當前移動方向：向右 > 2度為 1，向左 < -2度為 -1
+                    let currentDir = 0;
+                    if (constrainedYaw - lastYaw > 2) currentDir = 1;
+                    else if (constrainedYaw - lastYaw < -2) currentDir = -1;
+
+                    if (currentDir !== 0 && currentDir !== lastDirection) {
+                        if (swingStartTime === null) {
+                            swingStartTime = now;
+                            swingDirectionChanges = 0;
+                        }
+                        swingDirectionChanges++;
+                        lastDirection = currentDir;
+                    }
+                    lastYaw = constrainedYaw;
+
+                    // 如果滑鼠停頓超過 0.5 秒，代表擺動中斷，重置計算
+                    if (now - lastMoveTime > 500) {
+                        swingStartTime = null;
+                        swingDirectionChanges = 0;
+                    }
+                    lastMoveTime = now;
+
+                    // 如果持續左右變換方向超過 6 次，且歷時達 3 秒以上
+                    if (swingStartTime && (now - swingStartTime >= 3000) && swingDirectionChanges >= 6) {
+                        showBubble(swingTalks[Math.floor(Math.random() * swingTalks.length)]);
+                        swingStartTime = null; // 觸發後重置
+                        swingDirectionChanges = 0;
+                    }
                 });
 
-                // 當滑鼠離開瀏覽器視窗時，眼神平滑回歸最舒服的正面平視
                 document.addEventListener('mouseleave', () => {
                     if (isRotationMode || isUserDragging) return;
+                    avatar3D.cameraTarget = "0m 0.65m 0m";
                     
                     avatar3D.style.transition = "camera-orbit 0.3s ease";
                     avatar3D.cameraOrbit = "0deg 90deg 105%";
                     setTimeout(() => {
                         avatar3D.style.transition = "none";
                     }, 300);
+                    // 離開視窗時重設擺動檢測
+                    swingStartTime = null;
+                    swingDirectionChanges = 0;
                 });
             }
 
-            // ⚡ 確保網頁完全下載完了，才執行 3D 娃娃
             if (document.readyState === 'complete') {
                 init3DModel();
             } else {
