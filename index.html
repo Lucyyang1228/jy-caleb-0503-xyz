@@ -883,13 +883,21 @@
             cursor: grabbing;
         }
 
-        /* 🌸 修正：對話框絕對定位在動畫膜內部最上方，位置完美受控 */
+        /* 🌸 修正：對話框絕對定位在動畫膜內部最上方，位置完美受控（支援長短文字自適應與自動換行） */
         .doll-speech-bubble {
             position: absolute;
-            top: -25px; 
+            top: -35px; /* 💡 大幅上推，完美避開漂浮到最高點時的頭頂 */
             left: 50%;
             transform: translateX(-50%) scale(0.8);
-            width: 85%;
+            
+            /* 📐 核心修正：字少時縮小，字多時最多撐到娃娃的 95% 寬，靈活好看 */
+            width: auto;
+            max-width: 95%; 
+            
+            /* 📝 核心新增：強迫文字遇到邊界時自動換行，絕對不允許飄出去 */
+            white-space: normal;
+            word-break: break-all;
+            
             background-color: rgba(255, 255, 255, 0.4); 
             backdrop-filter: blur(8px);                 
             -webkit-backdrop-filter: blur(8px);
@@ -928,6 +936,7 @@
             display: block;
             width: 0;
         }
+
 
         /* 🚀 修正：連續上下彈跳 3 次的終極漂浮動畫（改為作用在純淨膜上，完全不擠壓排版） */
         @keyframes dollFilmFloatEffect {
@@ -1458,9 +1467,9 @@
             let accumulatedRotation = 0;    
 
             // 💬 經典夏以晝對話台詞庫
-            const clickTalks = ["哎呀，別戳了，頭暈...", "再點，下個月的零用錢扣留！", "幼稚。但...隨高興。"];
+            const clickTalks = ["只是一點點觸碰麼? 我覺得我還可以擁有更多…", "抓住一隻亂戳的手，罰它今天都不許掙脫。", "已經活動這麼久了，該休息一會兒了。"];
             const swingTalks = ["你這樣晃，我的脖子快扭到了...", "滑鼠移得這麼快，在找什麼呢？", "好了，別逗我了。"];
-            const fastRotTalks = ["轉這麼快，想把我當陀螺嗎？", "這就是你觀賞娃娃的方式？", "暈頭轉向了...快停下！"];
+            const fastRotTalks = ["最近對旋轉特別有興趣？那走吧，我帶你去玩旋轉木馬。", "據說向日葵會跟著太陽一起旋轉。大概是因為……追隨溫暖是本能，我也不能例外。", "先停下來，再轉下去你可就要頭暈了。"];
 
             // 💬 对话框显示防干扰逻辑
             function showBubble(text) {
@@ -1622,7 +1631,7 @@
                         
                         lastTrackedTheta = currentTheta;
 
-                        if (accumulatedRotation >= 1080) {
+                        if (accumulatedRotation >= 540) {
                             showBubble(fastRotTalks[Math.floor(Math.random() * fastRotTalks.length)]);
                             accumulatedRotation = 0; 
                             fastDragDuration = 0;    
@@ -1695,7 +1704,7 @@
                     }
                     lastMoveTime = now;
 
-                    if (swingStartTime && (now - swingStartTime >= 3000) && swingDirectionChanges >= 6) {
+                    if (swingStartTime && (now - swingStartTime >= 2000) && swingDirectionChanges >= 4) {
                         showBubble(swingTalks[Math.floor(Math.random() * swingTalks.length)]);
                         swingStartTime = null; 
                         swingDirectionChanges = 0;
