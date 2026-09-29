@@ -1017,6 +1017,29 @@
         }
 
 
+        /* ============================================================ */
+        /* 🔒 初始完全體專用：密碼防護牆外掛樣式（輸入正確前強制全黑防穿幫） */
+        /* ============================================================ */
+        
+        /* 1. 當網頁還在鎖定狀態時（body 沒有 unlocked-init 類別），強制將全網頁元件隱形 */
+        body:not(.unlocked-init) > *:not(script) {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        /* 2. 在輸入密碼期間，將網頁底色刷成質感的純黑色，並暫時拔掉 website-bg.png 防止提早曝露 */
+        body:not(.unlocked-init) {
+            background-color: #121212 !important;
+            background-image: none !important;
+        }
+
+        /* 3. 當輸入正確密碼解鎖成功的瞬間，全網頁所有元件帶有 0.4 秒高級的平滑淡入動畫 */
+        body.unlocked-init > *:not(script) {
+            opacity: 1;
+            transition: opacity 0.4s ease;
+        }
+
+
     </style>
 </head>
 
@@ -1314,6 +1337,10 @@
             
             // 🔓 密碼輸入正確後
             console.log("🔓 歡迎進入深空！");
+            
+            // ⚡ 核心新增：密碼正確的剎那，幫 body 注入解鎖印章，讓全網頁元件和 3D 娃娃瞬間高質感淡入現形！
+            document.body.classList.add('unlocked-init');
+
             
             // 【第一防線】嘗試在按下密碼確定的瞬間直接播放音樂
             bgMusic.play().then(() => {
