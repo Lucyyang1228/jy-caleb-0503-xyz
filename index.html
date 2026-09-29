@@ -1070,7 +1070,7 @@
                 <!-- 🔒 修正版 model-viewer：新增重要防線阻斷點擊視角偏移 -->
                 <model-viewer 
                     id="avatar3D"
-                    data-src="my_doll.glb?v=1" 
+                    src="my_doll.glb" 
                     title="以晝 3D Q版娃娃"
                     camera-controls
                     disable-zoom
@@ -1344,17 +1344,7 @@
                     pwdScreen.remove();
                 }, 400);
             }
-            
-            // ⚡ 2. 核心終極防線：延遲 0.2 秒（等 HTML 就位），強制重刷 3D 網址打破瀏覽器快取罷工！
-            setTimeout(function() {
-                const avatar3D = document.getElementById('avatar3D');
-                if (avatar3D) {
-                    console.log("⚡ [快取防護牆] 強制電擊叫醒夏以晝 3D 娃娃...");
-                    // 透過加上當前時間毫秒數（Date.now()），讓瀏覽器以為是新檔案，強制 100% 渲染畫面
-                    avatar3D.src = `my_doll.glb?v=${Date.now()}`;
-                }
-            }, 200);
-            
+
             // 【第一防線】嘗試在按下密碼確定的瞬間直接播放音樂
             bgMusic.play().then(() => {
                 musicToggleBtn.textContent = '🔊';
@@ -1362,6 +1352,7 @@
                 console.log("🔊 成功！瀏覽器允許直接播放音樂。");
             }).catch(function(error) {
                 console.log("⚠️ 第一防線遭攔截！改為啟動【第二防線】：等待使用者觸碰網頁螢幕...");
+
                 
                 // 【第二防線】完美隱形捕捉：只要使用者在網頁上隨便點任何地方，就立刻喚醒音樂！
                 // { once: true } 確保這個補償機制觸發一次後就自動功成身退，不會影響後續點擊。
@@ -1631,12 +1622,9 @@
                     console.log("⚠️ 解碼器註冊時發生異常:", e);
                 }
 
-                const realSrc = avatar3D.getAttribute('data-src');
-                if (realSrc) {
-                    avatar3D.src = realSrc;
-                }
-
+                // ⚡ 核心修正：移除原有的動態 data-src 讀寫防線，改用標準傾聽機制
                 avatar3D.addEventListener('load', () => {
+
                     console.log("🌸 [3D 成功通知] 夏以晝娃娃已排除所有衝突，成功在指定位置現形！");
                     avatar3D.cameraTarget = "0m 0.65m 0m"; 
                     avatar3D.cameraOrbit = "0deg 90deg 105%";  
