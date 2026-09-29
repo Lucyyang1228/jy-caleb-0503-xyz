@@ -1083,18 +1083,18 @@
             margin-top: 2px;
         }
 
-        /* ⏳ 新增：會隨著下載進度像填色一樣往右長長的進度條本體 */
+        /* ⏳ 填色進度條本體：升級為黃昏與黑夜交界的「晨昏線漸層」 */
         .doll-progress-bar-fill {
-            width: 0%; /* 預設從 0% 開始，由 JS 動態控制長度 */
+            width: 0%; /* 預設從 0% 開始，繼續由 JS 動態控制長度 */
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* 填色線條顏色 */
+            
+            /* 🌅 核心修改：由左至右（90度）從日落溫暖橘，漸層過渡到夜空深邃藍 */
+            background-image: linear-gradient(90deg, #ff7e40 0%, #ff9e59 40%, #2b5c8f 75%, #19325c 100%);
+            
+            /* 💡 讓漸層自帶微微發光的極光質感（可加可不加，喜歡亮亮的就留著） */
+            box-shadow: 0 0 4px rgba(255, 126, 64, 0.6);
+            
             transition: width 0.1s ease-out; /* 讓長高過程看起來平滑柔順 */
-        }
-
-        /* 旋轉動畫軌跡 */
-        @keyframes dollSpinningEffect {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
 
