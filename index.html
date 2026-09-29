@@ -1018,19 +1018,20 @@
 
 
         /* ============================================================ */
-        /* 🔒 修正：密碼防護牆專用隱藏樣式（改用透明遮罩，完美保護 3D 載入） */
+        /* 🔒 新增：密碼防護牆專用全螢幕黑色遮罩（完美保護 3D 娃娃正常載入）  */
         /* ============================================================ */
-        body.page-locked > *:not(script) {
-            opacity: 0 !important;
-            pointer-events: none !important;
-            transition: opacity 0.4s ease; /* 讓解鎖時有漂亮的淡入感 */
+        .password-black-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #121212 !important; /* 彈出密碼時的質感純黑色 */
+            z-index: 999999;                      /* 強制蓋在全網頁最上層 */
+            pointer-events: auto;                 /* 阻擋任何底下按鈕的點擊 */
+            transition: opacity 0.4s ease;        /* 解鎖時有漂亮的淡出感 */
         }
 
-        /* 輸入密碼前，全網頁強制留白或變黑（可自由修改背景顏色） */
-        body.page-locked {
-            background-color: #121212 !important; 
-            background-image: none !important; /* 解鎖前強制拔掉首頁背景圖，防止穿幫 */
-        }
 
 
 
@@ -1050,7 +1051,10 @@
         <div id="musicToggleBtn" class="music-icon-btn">🔊</div>
     </div>
 
-<body class="page-locked">
+<body>
+
+    <!-- ⚡ 新增這行：全螢幕密碼黑色遮罩（一進網頁強制全黑防穿幫） -->
+    <div id="passwordBlackScreen" class="password-black-screen"></div>
 
 
         <!-- ================= 📦 左下角 3D 娃娃主結構 ================= -->
@@ -1332,13 +1336,13 @@
             // 🔓 密碼輸入正確後
             console.log("🔓 歡迎進入深空！");
             
-            // ⚡ 1. 密碼正確後，立刻移除隱藏類別，讓網頁元件漂亮淡入浮現！
-            document.body.classList.remove('page-locked');
-            
-            // ⚡ 2. 核心防線：強行將 3D 娃娃叫醒，通知它立刻重新計算畫面尺寸，防止縮小破圖！
-            const avatar3D = document.getElementById('avatar3D');
-            if (avatar3D && typeof avatar3D.queueRender === 'function') {
-                avatar3D.queueRender(); 
+            // ⚡ 核心修正：密碼正確後，讓黑幕漂亮淡出，並在 0.4 秒後徹底從網頁中拔除，完全不卡效能！
+            const pwdScreen = document.getElementById('passwordBlackScreen');
+            if (pwdScreen) {
+                pwdScreen.style.opacity = '0';
+                setTimeout(function() {
+                    pwdScreen.remove();
+                }, 400);
             }
             
             // 【第一防線】嘗試在按下密碼確定的瞬間直接播放音樂
