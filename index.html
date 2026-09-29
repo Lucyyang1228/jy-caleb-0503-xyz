@@ -1839,6 +1839,24 @@
         }
 
 
+        // ============================================================
+        // ⚡ 核心終極防線：密碼正確或網頁載入後，定時自動觸發一次 resize 
+        // 假裝使用者按了 F12，強行逼 3D 娃娃在別台電腦也 100% 刷新尺寸並顯形！
+        // ============================================================
+        window.addEventListener('load', function() {
+            // 在網頁完全載入後的 0.5 秒與 1.5 秒，主動各觸發一次視窗刷新訊號
+            setTimeout(function() {
+                window.dispatchEvent(new Event('resize'));
+                console.log("⚡ [尺寸防護牆] 已自動為娃娃刷新螢幕排版尺寸 (第一發)...");
+            }, 500);
+
+            setTimeout(function() {
+                window.dispatchEvent(new Event('resize'));
+                console.log("⚡ [尺寸防護牆] 已自動為娃娃刷新螢幕排版尺寸 (第二發)...");
+            }, 1500);
+        });
+
+
     </script>
 
 
