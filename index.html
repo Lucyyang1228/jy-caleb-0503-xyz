@@ -1018,17 +1018,20 @@
 
 
         /* ============================================================ */
-        /* 🔒 新增：密碼防護牆專用隱藏樣式（輸入正確前，全網頁強制全黑）     */
+        /* 🔒 修正：密碼防護牆專用隱藏樣式（改用透明遮罩，完美保護 3D 載入） */
         /* ============================================================ */
         body.page-locked > *:not(script) {
-            display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transition: opacity 0.4s ease; /* 讓解鎖時有漂亮的淡入感 */
         }
 
-        /* 讓密碼輸入框彈出時，背景保持質感的深空純黑色 */
+        /* 輸入密碼前，全網頁強制留白或變黑（可自由修改背景顏色） */
         body.page-locked {
             background-color: #121212 !important; 
-            background-image: none !important; /* 強制覆蓋並隱藏 website-bg.png 背景圖 */
+            background-image: none !important; /* 解鎖前強制拔掉首頁背景圖，防止穿幫 */
         }
+
 
 
     </style>
@@ -1329,8 +1332,14 @@
             // 🔓 密碼輸入正確後
             console.log("🔓 歡迎進入深空！");
             
-            // ⚡ 新增：密碼正確後，立刻移除 page-locked 類別，讓網頁元件瞬間漂亮地浮現！
+            // ⚡ 1. 密碼正確後，立刻移除隱藏類別，讓網頁元件漂亮淡入浮現！
             document.body.classList.remove('page-locked');
+            
+            // ⚡ 2. 核心防線：強行將 3D 娃娃叫醒，通知它立刻重新計算畫面尺寸，防止縮小破圖！
+            const avatar3D = document.getElementById('avatar3D');
+            if (avatar3D && typeof avatar3D.queueRender === 'function') {
+                avatar3D.queueRender(); 
+            }
             
             // 【第一防線】嘗試在按下密碼確定的瞬間直接播放音樂
             bgMusic.play().then(() => {
