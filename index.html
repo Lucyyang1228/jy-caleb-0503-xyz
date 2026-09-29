@@ -1017,6 +1017,20 @@
         }
 
 
+        /* ============================================================ */
+        /* 🔒 新增：密碼防護牆專用隱藏樣式（輸入正確前，全網頁強制全黑）     */
+        /* ============================================================ */
+        body.page-locked > *:not(script) {
+            display: none !important;
+        }
+
+        /* 讓密碼輸入框彈出時，背景保持質感的深空純黑色 */
+        body.page-locked {
+            background-color: #121212 !important; 
+            background-image: none !important; /* 強制覆蓋並隱藏 website-bg.png 背景圖 */
+        }
+
+
     </style>
 </head>
 
@@ -1033,7 +1047,7 @@
         <div id="musicToggleBtn" class="music-icon-btn">🔊</div>
     </div>
 
-<body>
+<body class="page-locked">
 
 
         <!-- ================= 📦 左下角 3D 娃娃主結構 ================= -->
@@ -1314,6 +1328,9 @@
             
             // 🔓 密碼輸入正確後
             console.log("🔓 歡迎進入深空！");
+            
+            // ⚡ 新增：密碼正確後，立刻移除 page-locked 類別，讓網頁元件瞬間漂亮地浮現！
+            document.body.classList.remove('page-locked');
             
             // 【第一防線】嘗試在按下密碼確定的瞬間直接播放音樂
             bgMusic.play().then(() => {
