@@ -1044,7 +1044,7 @@
         /* 🌸 升級：3D 娃娃專用「百分比進度條」高質感毛玻璃預載提示樣式 */
         /* ============================================================ */
         
-        /* 預載大畫布：蓋在 3D 娃娃身上，模型下載完會自動淡出消失 */
+        /* 預載大畫布：微調拿掉圈圈後的元件間距 */
         .doll-loading-poster {
             display: flex;
             flex-direction: column;
@@ -1052,26 +1052,23 @@
             align-items: center;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.15); /* 輕透背景 */
-            backdrop-filter: blur(8px);                  /* 蘋果系統毛玻璃模糊 */
+            background-color: rgba(255, 255, 255, 0.15); 
+            backdrop-filter: blur(8px);                  
             -webkit-backdrop-filter: blur(8px);
             border-radius: 20px;
             color: #3a3a3a;
             font-size: 11px;
             font-family: "Microsoft JhengHei", sans-serif;
             font-weight: bold;
-            gap: 8px;
+            gap: 12px; /* 💡 從 8px 微調到 12px，讓文字跟晨昏線進度條拉開一點點，看起來更舒服 */
         }
 
-        /* 純 CSS 的精緻擬真旋轉轉圈圈線條 */
+
+        /* ⚡ 核心修改：隱藏上方的轉圈圈線條，讓排版更乾淨 */
         .doll-loading-spinner {
-            width: 22px;
-            height: 22px;
-            border: 3px solid rgba(0, 0, 0, 0.1);
-            border-top: 3px solid rgba(0, 0, 0, 0.5); /* 轉圈圈深色線條 */
-            border-radius: 50%;
-            animation: dollSpinningEffect 1s linear infinite; /* 無限旋轉 */
+            display: none !important;
         }
+
 
         /* ⏳ 新增：科技感外框進度條 */
         .doll-progress-bar-wrapper {
