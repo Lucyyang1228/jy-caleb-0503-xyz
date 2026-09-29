@@ -1336,7 +1336,7 @@
             // 🔓 密碼輸入正確後
             console.log("🔓 歡迎進入深空！");
             
-            // ⚡ 核心修正：密碼正確後，讓黑幕漂亮淡出，並在 0.4 秒後徹底從網頁中拔除，完全不卡效能！
+            // 1. 密碼正確後，讓黑幕漂亮淡出，並在 0.4 秒後徹底從網頁中拔除
             const pwdScreen = document.getElementById('passwordBlackScreen');
             if (pwdScreen) {
                 pwdScreen.style.opacity = '0';
@@ -1344,6 +1344,16 @@
                     pwdScreen.remove();
                 }, 400);
             }
+            
+            // ⚡ 2. 核心終極防線：延遲 0.2 秒（等 HTML 就位），強制重刷 3D 網址打破瀏覽器快取罷工！
+            setTimeout(function() {
+                const avatar3D = document.getElementById('avatar3D');
+                if (avatar3D) {
+                    console.log("⚡ [快取防護牆] 強制電擊叫醒夏以晝 3D 娃娃...");
+                    // 透過加上當前時間毫秒數（Date.now()），讓瀏覽器以為是新檔案，強制 100% 渲染畫面
+                    avatar3D.src = `my_doll.glb?v=${Date.now()}`;
+                }
+            }, 200);
             
             // 【第一防線】嘗試在按下密碼確定的瞬間直接播放音樂
             bgMusic.play().then(() => {
