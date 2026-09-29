@@ -1041,7 +1041,7 @@
 
 
         /* ============================================================ */
-        /* 🌸 新增：3D 娃娃專用「正在下載中...」高質感毛玻璃加載提示樣式 */
+        /* 🌸 升級：3D 娃娃專用「百分比進度條」高質感毛玻璃預載提示樣式 */
         /* ============================================================ */
         
         /* 預載大畫布：蓋在 3D 娃娃身上，模型下載完會自動淡出消失 */
@@ -1060,17 +1060,35 @@
             font-size: 11px;
             font-family: "Microsoft JhengHei", sans-serif;
             font-weight: bold;
-            gap: 10px;
+            gap: 8px;
         }
 
         /* 純 CSS 的精緻擬真旋轉轉圈圈線條 */
         .doll-loading-spinner {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             border: 3px solid rgba(0, 0, 0, 0.1);
             border-top: 3px solid rgba(0, 0, 0, 0.5); /* 轉圈圈深色線條 */
             border-radius: 50%;
             animation: dollSpinningEffect 1s linear infinite; /* 無限旋轉 */
+        }
+
+        /* ⏳ 新增：科技感外框進度條 */
+        .doll-progress-bar-wrapper {
+            width: 65%;
+            height: 5px;
+            background-color: rgba(0, 0, 0, 0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 2px;
+        }
+
+        /* ⏳ 新增：會隨著下載進度像填色一樣往右長長的進度條本體 */
+        .doll-progress-bar-fill {
+            width: 0%; /* 預設從 0% 開始，由 JS 動態控制長度 */
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* 填色線條顏色 */
+            transition: width 0.1s ease-out; /* 讓長高過程看起來平滑柔順 */
         }
 
         /* 旋轉動畫軌跡 */
@@ -1123,11 +1141,17 @@
                     shadow-intensity="1.5"
                     interaction-prompt="none">
                     
-                    <!-- ⚡ 新增：預載提示插槽（模型載入完會自動功成身退不占用硬體資源） -->
+                    <!-- ⚡ 升級：百分比數字進度條預載提示插槽 -->
                     <div slot="poster" class="doll-loading-poster">
                         <div class="doll-loading-spinner"></div>
-                        <div>正在下載中...</div>
+                        <!-- 給文字加上 id，方便 JavaScript 即時把數字灌進去 -->
+                        <div id="dollProgressText">正在下載中... 0%</div>
+                        <!-- 進度條外框與填色元件 -->
+                        <div class="doll-progress-bar-wrapper">
+                            <div id="dollProgressBarFill" class="doll-progress-bar-fill"></div>
+                        </div>
                     </div>
+
                     
                 </model-viewer>
 
@@ -1930,6 +1954,44 @@
                 console.log("⚡ [尺寸防護牆] 已自動為娃娃刷新螢幕排版尺寸 (第二發)...");
             }, 1500);
         });
+
+
+        // ============================================================
+        // ⏳ 新增：3D 娃娃百分比下載進度即時計算器
+        // 專門傾聽 Google 3D 引擎的 progress 訊號，同步刷新網頁上的數字與線條長度
+        // ============================================================
+        (function() {
+            // 監聽網頁，直到 3D 娃娃組件在畫面上誕生
+            const checkViewerExist = setInterval(function() {
+                const avatar3D = document.getElementById('avatar3D');
+                if (avatar3D) {
+                    clearInterval(checkViewerExist); // 抓到娃娃了，停止計時器
+
+                    // 綁定網頁上的文字與進度條本體
+                    const progressText = document.getElementById('dollProgressText');
+                    const progressBarFill = document.getElementById('dollProgressBarFill');
+
+                    // 註冊進度條事件
+                    avatar3D.addEventListener('progress', function(event) {
+                        // event.detail.totalProgress 是 Google 算好的小數點（從 0.0 到 1.0）
+                        const progressRatio = event.detail.totalProgress;
+                        
+                        // 將小數點乘以 100 並四捨五入，換算成完美的整數百分比（例如 45）
+                        const percentage = Math.round(progressRatio * 100);
+
+                        // 1. 即時動態刷新文字內容
+                        if (progressText) {
+                            progressText.textContent = "正在下載中... " + percentage + "%";
+                        }
+
+                        // 2. 即時動態控制進度條的百分比寬度，寬度會漂亮地往右滑動填滿
+                        if (progressBarFill) {
+                            progressBarFill.style.width = percentage + "%";
+                        }
+                    });
+                }
+            }, 100); // 每 0.1 秒偵測一次娃娃有沒有誕生
+        })();
 
 
     </script>
