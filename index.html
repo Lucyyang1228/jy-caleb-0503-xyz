@@ -1197,44 +1197,54 @@
         const bottomToast = document.getElementById('bottom-toast');
         let toastTimeout; // 維持你原本的 timeout 變數命名格式
 
+        if (unlockBtn) {
+            unlockBtn.addEventListener('click', function() {
+                lockScreen.classList.add('unlocked');
+                
+                /* 🚫 新增防線：解鎖成功進入主畫面時，用 JS 強行將相機按鈕與提示氣泡徹底變不見 */
+                if (bottomToast) bottomToast.style.display = 'none';
+                if (cameraBtn) cameraBtn.style.display = 'none';
+            });
+        }
 
-        unlockBtn.addEventListener('click', function() {
-            lockScreen.classList.add('unlocked');
-            
-            /* 🚫 新增防線：解鎖成功進入主畫面時，用 JS 強行將相機按鈕與提示氣泡徹底變不見 */
-            if (bottomToast) bottomToast.style.display = 'none';
-            if (cameraBtn) cameraBtn.style.display = 'none';
-        });
+        if (widgetTopRight) {
+            widgetTopRight.addEventListener('click', function() {
+                galleryScreen.style.backgroundImage = "url('gallery1.png')";
+                galleryScreen.classList.add('show');
+            });
+        }
 
+        if (widgetBottomLeft) {
+            widgetBottomLeft.addEventListener('click', function() {
+                galleryScreen.style.backgroundImage = "url('gallery2.png')";
+                galleryScreen.classList.add('show');
+            });
+        }
 
-        widgetTopRight.addEventListener('click', function() {
-            galleryScreen.style.backgroundImage = "url('gallery1.png')";
-            galleryScreen.classList.add('show');
-        });
+        if (galleryBackBtn) {
+            galleryBackBtn.addEventListener('click', function() {
+                galleryScreen.classList.remove('show');
+            });
+        }
 
-        widgetBottomLeft.addEventListener('click', function() {
-            galleryScreen.style.backgroundImage = "url('gallery2.png')";
-            galleryScreen.classList.add('show');
-        });
+        if (widgetCalendar) {
+            widgetCalendar.addEventListener('click', function() {
+                calendarScreen.style.backgroundImage = "url('calendar_large.png')";
+                calendarScreen.classList.add('show');
+            });
+        }
 
-        galleryBackBtn.addEventListener('click', function() {
-            galleryScreen.classList.remove('show');
-        });
-
-        widgetCalendar.addEventListener('click', function() {
-            calendarScreen.style.backgroundImage = "url('calendar_large.png')";
-            calendarScreen.classList.add('show');
-        });
-
-        calendarBackBtn.addEventListener('click', function() {
-            calendarScreen.classList.remove('show');
-        });
+        if (calendarBackBtn) {
+            calendarBackBtn.addEventListener('click', function() {
+                calendarScreen.classList.remove('show');
+            });
+        }
 
         // 蘋果循環通知
         const appleRedBtn = document.getElementById('appleRedBtn');
         const appleGreenBtn = document.getElementById('appleGreenBtn');
         const phoneNotification = document.getElementById('phoneNotification');
-        const notiText = phoneNotification.querySelector('.noti-text'); 
+        let notiText = phoneNotification ? phoneNotification.querySelector('.noti-text') : null; 
         let notiTimeout;
 
         const redMessages = ['夏以晝是我的！', '不要偷看我哥哥！', '😠'];
@@ -1243,6 +1253,7 @@
         let greenIndex = 0;
 
         function triggerNotification(text) {
+            if (!phoneNotification || !notiText) return;
             clearTimeout(notiTimeout);
             notiText.textContent = text;
             phoneNotification.classList.add('show');
@@ -1251,66 +1262,72 @@
             }, 3000);
         }
 
-        appleRedBtn.addEventListener('click', function() {
-            triggerNotification(redMessages[redIndex]);
-            redIndex = (redIndex + 1) % redMessages.length;
-        });
+        if (appleRedBtn) {
+            appleRedBtn.addEventListener('click', function() {
+                triggerNotification(redMessages[redIndex]);
+                redIndex = (redIndex + 1) % redMessages.length;
+            });
+        }
 
-        appleGreenBtn.addEventListener('click', function() {
-            triggerNotification(greenMessages[greenIndex]);
-            greenIndex = (greenIndex + 1) % greenMessages.length;
-        });
+        if (appleGreenBtn) {
+            appleGreenBtn.addEventListener('click', function() {
+                triggerNotification(greenMessages[greenIndex]);
+                greenIndex = (greenIndex + 1) % greenMessages.length;
+            });
+        }
 
         // 相機底部彈出通知（維持你原本 triggerNotification 的清除計時與 show 類別格式）
-        cameraBtn.addEventListener('click', function() {
-            clearTimeout(toastTimeout);
-            
-            // 先移除 show 確保連續點擊時動畫能重新觸發
-            bottomToast.classList.remove('show');
-            
-            // 延遲讓瀏覽器重繪，隨後加入 show 讓通知滑上來
-            setTimeout(function() {
-                bottomToast.classList.add('show');
+        if (cameraBtn) {
+            cameraBtn.addEventListener('click', function() {
+                if (!bottomToast) return;
+                clearTimeout(toastTimeout);
                 
-                // 維持你原本設定的 3000 毫秒（3秒）後自動移除並滑回去
-                toastTimeout = setTimeout(function() {
-                    bottomToast.classList.remove('show');
-                }, 3000);
-            }, 10);
-        });
-
-
-
+                // 先移除 show 確保連續點擊時動畫能重新觸發
+                bottomToast.classList.remove('show');
+                
+                // 延遲讓瀏覽器重繪，隨後加入 show 讓通知滑上來
+                setTimeout(function() {
+                    bottomToast.classList.add('show');
+                    
+                    // 維持你原本設定的 3000 毫秒（3秒）後自動移除並滑回去
+                    toastTimeout = setTimeout(function() {
+                        bottomToast.classList.remove('show');
+                    }, 3000);
+                }, 10);
+            });
+        }
         // ============================================================
         // 核心 2：🔊 獨立運作的音樂與跑馬燈控制區（整個大框框皆可點擊）
         // ============================================================
         const bgMusic = document.getElementById('bgMusic');
         
         // 💡 新增這行：設定音量大小為 30%（0.3），您可以自由修改這個數字
-        bgMusic.volume = 0.3; 
+        if (bgMusic) bgMusic.volume = 0.3; 
         
         const musicToggleBtn = document.getElementById('musicToggleBtn');
         const marqueeText = document.querySelector('.marquee-text');
         const musicControlBox = document.querySelector('.music-control-box'); 
 
         // 💡 點擊「整個音樂控制盒（跑馬燈+喇叭）」➔ 切換 播放/靜音 狀態
-        musicControlBox.addEventListener('click', function(e) {
-            e.stopPropagation(); // 防止點擊事件干擾到網頁其他元件
-            console.log("整個音樂盒被點擊了！目前播放狀態為:", bgMusic.paused);
-            
-            if (bgMusic.paused) {
-                bgMusic.play().then(() => {
-                    musicToggleBtn.textContent = '🔊';
-                    marqueeText.style.animationPlayState = 'running'; // 跑馬燈繼續滾動
-                }).catch(err => {
-                    console.log("播放失敗，可能需要先點擊網頁任意地方:", err);
-                });
-            } else {
-                bgMusic.pause();
-                musicToggleBtn.textContent = '🔇'; // 切換為靜音符號
-                marqueeText.style.animationPlayState = 'paused'; // 點擊靜音時字會停下
-            }
-        });
+        if (musicControlBox && bgMusic) {
+            musicControlBox.addEventListener('click', function(e) {
+                e.stopPropagation(); // 防止點擊事件干擾到網頁其他元件
+                console.log("整個音樂盒被點擊了！目前播放狀態為:", bgMusic.paused);
+                
+                if (bgMusic.paused) {
+                    bgMusic.play().then(() => {
+                        if (musicToggleBtn) musicToggleBtn.textContent = '🔊';
+                        if (marqueeText) marqueeText.style.animationPlayState = 'running'; // 跑馬燈繼續滾動
+                    }).catch(err => {
+                        console.log("播放失敗，可能需要先點擊網頁任意地方:", err);
+                    });
+                } else {
+                    bgMusic.pause();
+                    if (musicToggleBtn) musicToggleBtn.textContent = '🔇'; // 切換為靜音符號
+                    if (marqueeText) marqueeText.style.animationPlayState = 'paused'; // 點擊靜音時字會停下
+                }
+            });
+        }
 
 
         // ============================================================
@@ -1344,185 +1361,43 @@
                     pwdScreen.remove();
                 }, 400);
             }
+            
+            // ⚡ 密碼正確、揭開黑幕後，才准 3D 娃娃載入模型，時序絕不打架
+            init3DModelComplete();
 
             // 【第一防線】嘗試在按下密碼確定的瞬間直接播放音樂
-            bgMusic.play().then(() => {
-                musicToggleBtn.textContent = '🔊';
-                marqueeText.style.animationPlayState = 'running';
-                console.log("🔊 成功！瀏覽器允許直接播放音樂。");
-            }).catch(function(error) {
-                console.log("⚠️ 第一防線遭攔截！改為啟動【第二防線】：等待使用者觸碰網頁螢幕...");
-
-                
-                // 【第二防線】完美隱形捕捉：只要使用者在網頁上隨便點任何地方，就立刻喚醒音樂！
-                // { once: true } 確保這個補償機制觸發一次後就自動功成身退，不會影響後續點擊。
-                document.body.addEventListener('click', function() {
-                    if (bgMusic.paused) {
-                        bgMusic.play().then(() => {
-                            musicToggleBtn.textContent = '🔊';
-                            marqueeText.style.animationPlayState = 'running';
-                            console.log("🔊 成功！透過使用者觸碰網頁畫面，強制喚醒背景音樂。");
-                        }).catch(e => console.log("喚醒失敗:", e));
-                    }
-                }, { once: true });
-            });
+            if (bgMusic) {
+                bgMusic.play().then(() => {
+                    if (musicToggleBtn) musicToggleBtn.textContent = '🔊';
+                    if (marqueeText) marqueeText.style.animationPlayState = 'running';
+                    console.log("🔊 成功！瀏覽器允許直接播放音樂。");
+                }).catch(function(error) {
+                    console.log("⚠️ 第一防線遭攔截！改為啟動【第二防線】：等待使用者觸碰網頁螢幕...");
+                    
+                    // 【第二防線】完美隱形捕捉：只要使用者在網頁上隨便點任何地方，就立刻喚醒音樂！
+                    document.body.addEventListener('click', function() {
+                        if (bgMusic.paused) {
+                            bgMusic.play().then(() => {
+                                if (musicToggleBtn) musicToggleBtn.textContent = '🔊';
+                                if (marqueeText) marqueeText.style.animationPlayState = 'running';
+                                console.log("🔊 成功！透過使用者觸碰網頁畫面，強制喚醒背景音樂。");
+                            }).catch(e => console.log("喚醒失敗:", e));
+                        }
+                    }, { once: true });
+                });
+            }
         });
-
-        // ============================================================
-        // 3. JavaScript 邏輯：雙層巢狀便利貼與大圖切換核心邏輯            
-        // ============================================================
-        
-        // 📂 【設定資料庫】直接在裡面幫每一張加上專屬的 footer！
-        const stickyData = {
-            orange: {
-                title: "Happy Graduation 🎓",
-                notes: [
-                    { text: "文武雙全、才貌兼備的經理在這裡留下了訊息...🎉", image: "orange_bg.png", footer: "Amber💖" } // 👈 橘色專屬
-                ]
-            },
-            red: {
-                title: "Best Wish ❤️",
-                notes: [
-                    { text: "開銀行的里長伯在這裡留下了足跡...🥰", image: "red_pic1.png", footer: "Lily✨" },      // 👈 第一張自訂
-                    { text: "系醬&可頌的媽咪在這裡撒了閃亮亮金粉...✨", image: "red_pic2.png", footer: "可可💞" },     // 👈 第二張自訂
-                    { text: "茶寶大廚、三貓家長在這裡煮了一道菜...🍳", image: "red_pic3.png", footer: "小暴😎" },    // 👈 第三張自訂
-                    { text: "行動點歌機在這裡唱了一首歌...🎵", image: "red_pic4.png", footer: "惠茹🌼" }       // 👈 第四張自訂
-                ]
-            },
-            green: {
-                title: "From TP Members 👥",
-                notes: [
-                    { text: "手搖飲好夥伴在這裡放了杯奶茶...🥤", image: "green_pic1.png", footer: "Yuri🍥" },
-                    { text: "門市綠手指在此種了一棵植物...🌱", image: "green_pic2.png", footer: "思秀🍀" },
-                    { text: "秦徹的小狸花在這裡借放了一下梅菲斯特...🐦‍⬛", image: "green_pic3.png", footer: "Lucy🐱" },
-                    { text: "會計專家在這裡留下了薪資條...💵", image: "green_pic4.png", footer: "咨昱🌞" }
-                ]
-            }
-        };
-
-
-        // 綁定網頁上的 HTML 標籤元件
-        const stickyWallOverlay = document.getElementById('stickyWallOverlay');
-        const stickyWallTitle = document.getElementById('stickyWallTitle');
-        const stickyNotesGrid = document.getElementById('stickyNotesGrid');
-        const stickyGalleryScreen = document.getElementById('stickyGalleryScreen');
-
-        // 打開【第一層】：鋪設並開啟便利貼牆面（個別自訂右下角版）
-        function openStickyWall(type) {
-            const data = stickyData[type];
-            if (!data) return;
-
-            stickyWallTitle.textContent = data.title;
-            stickyNotesGrid.innerHTML = ""; // 清空上一次的舊紙條
-
-            if (data.notes.length === 1) {
-                stickyNotesGrid.classList.add('single-note');
-            } else {
-                stickyNotesGrid.classList.remove('single-note');
-            }
-
-            data.notes.forEach((note, index) => {
-                const noteCard = document.createElement('div');
-                noteCard.className = 'sticky-note-card';
-                
-                // 🔒 點擊功能完全保留！點了依然能完美開啟大圖，絕不受影響
-                noteCard.onclick = function() {
-                    openStickyGallery(note.image); 
-                };
-
-                // 🌸 核心修正：將原本死板的 #\${index + 1} 📌，改為自動讀取你自訂的 note.footer！
-                // 如果你忘記在資料庫寫 footer，它會貼心地幫你自動用原本的數字和圖釘當備份，防呆不破圖！
-                const displayFooter = note.footer ? note.footer : `#${index + 1} 📌`;
-
-                noteCard.innerHTML = `
-                    <div class="sticky-note-text">${note.text}</div>
-                    <div class="sticky-note-footer">${displayFooter}</div>
-                `;
-                stickyNotesGrid.appendChild(noteCard);
-            });
-
-            stickyWallOverlay.classList.add('show');
-        }
-
-
-        // 🔴 關閉【第一層】：點擊大 (×) 鈕，徹底退出牆面回到手機桌面
-        function closeStickyWall() {
-            stickyWallOverlay.classList.remove('show');
-        }
-
-        // 🖼️ 打開【第二層】：進入滿版大圖展示
-        function openStickyGallery(imagePath) {
-            stickyGalleryScreen.style.backgroundImage = `url('${imagePath}')`; // 更換背景圖檔名
-            stickyGalleryScreen.classList.add('show');                        // 照片从小放大滑入
-        }
-
-        // 🔙 關閉【第二層】：在大圖時點擊返回鍵 ➔ 只關閉大圖，安全回到【第一層便利貼牆】
-        function closeStickyGallery() {
-            stickyGalleryScreen.classList.remove('show');
-        }
-
-        // ============================================================
-        // 3. JavaScript 邏輯：手機內建本地實體影片播放系統           
-        // ============================================================
-        
-        // 💡 1. 在這裡設定您準備好的影片檔案名稱（建議格式為 mp4）
-        const localVideoName = "my_video.mp4"; 
-
-        const ytVideoBtn = document.getElementById('ytVideoBtn');
-        const ytPlayerOverlay = document.getElementById('ytPlayerOverlay');
-        const ytPlayerIframePlace = document.getElementById('ytPlayerIframePlace');
-
-        // 🎬 🟢 打開手機內建影片播放器
-        ytVideoBtn.addEventListener('click', function(e) {
-            e.stopPropagation(); // 防止點擊干擾到網頁其他元件
-            
-            // 💡 核心改動：改為動態生成網頁原生 <video> 標籤，並開啟 controls (進度條播放鍵) 方便操作
-            ytPlayerIframePlace.innerHTML = `
-                <video id="phoneInnerVideo" src="${localVideoName}" controls autoplay></video>
-            `;
-            
-            // 💡 打開影片時，自動暫停背景音樂 (bgm.mp3)，避免聲音打架
-            if (!bgMusic.paused) {
-                bgMusic.pause();
-                musicToggleBtn.textContent = '🔇';
-                marqueeText.style.animationPlayState = 'paused';
-            }
-
-            // 顯示影片播放器遮罩層
-            ytPlayerOverlay.classList.add('show');
-        });
-
-        // ❌ 🔴 關閉手機內建影片播放器
-        function closeYtPlayer() {
-            // 抓取剛才生成的影片元件並將它暫停
-            const currentVideo = document.getElementById('phoneInnerVideo');
-            if (currentVideo) {
-                currentVideo.pause();
-            }
-            
-            // 💡 徹底將影片結構從網頁中拔除，確保背景完全安靜不偷放聲音
-            ytPlayerIframePlace.innerHTML = "";
-            
-            // 隱藏影片播放器遮罩層
-            ytPlayerOverlay.classList.remove('show');
-            
-            // 💡 貼心優化：影片關閉後，自動將原本的網頁背景音樂恢復播放！
-            bgMusic.play().then(() => {
-                musicToggleBtn.textContent = '🔊';
-                marqueeText.style.animationPlayState = 'running';
-            }).catch(e => console.log("重啟背景音樂遭攔截:", e));
-        }
-
-
         // ============================================================
         // 📦 核心 4：3D 娃娃【純淨重構終極版：人物上推現腳 + 按鈕精簡調淡 + 上下眼神修正 + 互動彩蛋完全體】
         // ============================================================
-        const avatar3D = document.getElementById('avatar3D');
-        const dollRotBtn = document.getElementById('dollRotBtn');
-        const dollSpeechBubble = document.getElementById('dollSpeechBubble');
-        const dollFloatFilm = document.getElementById('dollFloatFilm'); 
+        function init3DModelComplete() {
+            const avatar3D = document.getElementById('avatar3D');
+            const dollRotBtn = document.getElementById('dollRotBtn');
+            const dollSpeechBubble = document.getElementById('dollSpeechBubble');
+            const dollFloatFilm = document.getElementById('dollFloatFilm'); 
 
-        if (avatar3D && dollRotBtn && dollFloatFilm) {
+            if (!avatar3D || !dollRotBtn || !dollFloatFilm) return;
+
             let isRotationMode = false; 
             let rotationAngle = 0;      
             let animationFrameId = null;
@@ -1571,20 +1446,18 @@
             // 💡 新增核心：洗牌抽卡函數（將台詞隨機打亂，一輪抽完才換下一輪，絕不連續重複）
             function getNextTalk(poolKey, sourceArray) {
                 if (pools[poolKey].length === 0) {
-                    // 如果池子抽空了，複製一份新的台詞陣列進來
                     pools[poolKey] = [...sourceArray];
-                    // 使用經典 Fisher-Yates 演算法將池子隨機徹底打亂（洗牌）
                     for (let i = pools[poolKey].length - 1; i > 0; i--) {
                         const j = Math.floor(Math.random() * (i + 1));
                         [pools[poolKey][i], pools[poolKey][j]] = [pools[poolKey][j], pools[poolKey][i]];
                     }
                 }
-                // 從打亂的池子裡丟出最後一句話（依序抽卡）
                 return pools[poolKey].pop();
             }
 
             // 💬 对话框显示防干扰逻辑（完美保留 3.5 秒停留設定 ⏱️）
             function showBubble(text) {
+                if (!dollSpeechBubble) return;
                 clearTimeout(bubbleTimeout);
                 dollSpeechBubble.textContent = text;
                 dollSpeechBubble.classList.add('show');
@@ -1597,272 +1470,365 @@
             function resetIdleTimer() {
                 clearTimeout(idleTimeout);
                 clearInterval(idleInterval);
-
                 if (isRotationMode || isUserDragging) return;
 
-                // ⏳ 靜置滿 10 秒首發
                 idleTimeout = setTimeout(() => {
                     showBubble(getNextTalk('idle', idleTalks));
-
-                    // ⏳ 後續每 10 秒循環碎碎念
                     idleInterval = setInterval(() => {
                         showBubble(getNextTalk('idle', idleTalks));
                     }, 10000);
-
                 }, 10000);
             }
 
-            function init3DModel() {
-                try {
-                    if (window.MeshoptDecoder) {
-                        avatar3D.registerExternalExtension('EXT_meshopt_compression', window.MeshoptDecoder);
-                        console.log("⚡ [3D 時序控制] Meshopt 解碼鑰匙優先註冊成功！");
-                    }
-                } catch (e) {
-                    console.log("⚠️ 解碼器註冊時發生異常:", e);
+            try {
+                if (window.MeshoptDecoder) {
+                    avatar3D.registerExternalExtension('EXT_meshopt_compression', window.MeshoptDecoder);
                 }
+            } catch (e) { console.log("解碼器異常:", e); }
 
-                // ⚡ 核心修正：移除原有的動態 data-src 讀寫防線，改用標準傾聽機制
-                avatar3D.addEventListener('load', () => {
+            // ⚡ 核心大絕招：用時間戳強制重新賦予網址，擊碎 Google 快取神隱 Bug！
+            avatar3D.src = `my_doll.glb?t=${Date.now()}`;
 
-                    console.log("🌸 [3D 成功通知] 夏以晝娃娃已排除所有衝突，成功在指定位置現形！");
-                    avatar3D.cameraTarget = "0m 0.65m 0m"; 
-                    avatar3D.cameraOrbit = "0deg 90deg 105%";  
-                    resetIdleTimer(); 
-                });
+            avatar3D.addEventListener('load', () => {
+                avatar3D.cameraTarget = "0m 0.65m 0m"; 
+                avatar3D.cameraOrbit = "0deg 90deg 105%";  
+                resetIdleTimer(); 
+            });
+            // 💡 互動一：音樂盒慢速自轉展示
+            function playRotationLoop() {
+                if (!isRotationMode || isUserDragging) return; 
+                rotationAngle = (rotationAngle - 0.4) % 360;
+                avatar3D.cameraTarget = "0m 0.65m 0m";
+                avatar3D.cameraOrbit = `${rotationAngle}deg 90deg 105%`;
+                animationFrameId = requestAnimationFrame(playRotationLoop);
+            }
 
-                // 💡 互動一：音樂盒慢速自轉展示
-                function playRotationLoop() {
-                    if (!isRotationMode || isUserDragging) return; 
-                    
-                    rotationAngle = (rotationAngle - 0.4) % 360;
-                    avatar3D.cameraTarget = "0m 0.65m 0m";
-                    avatar3D.cameraOrbit = `${rotationAngle}deg 90deg 105%`;
+            // 💡 互動二：切換 旋轉 / 靜止 狀態開關
+            dollRotBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                isRotationMode = !isRotationMode; 
+                clearTimeout(userInteractingTimeout);
+                avatar3D.cameraTarget = "0m 0.65m 0m"; 
+                accumulatedRotation = 0; 
 
-                    animationFrameId = requestAnimationFrame(playRotationLoop);
-                }
-
-                // 💡 互動二：切換 旋轉 / 靜止 狀態開關
-                dollRotBtn.addEventListener('click', (e) => {
-                    e.stopPropagation(); 
-                    isRotationMode = !isRotationMode; 
-                    clearTimeout(userInteractingTimeout);
-                    avatar3D.cameraTarget = "0m 0.65m 0m"; 
-                    accumulatedRotation = 0; 
-
-                    if (isRotationMode) {
-                        dollRotBtn.classList.add('active');
-                        dollRotBtn.textContent = "⏸️ 靜止";
-                        clearTimeout(idleTimeout);
-                        clearInterval(idleInterval);
-                        
-                        const currentOrbit = avatar3D.getCameraOrbit();
-                        if (currentOrbit) {
-                            rotationAngle = currentOrbit.theta * (180 / Math.PI); 
-                        }
-                        
-                        isUserDragging = false;
-                        playRotationLoop();
-                    } else {
-                        dollRotBtn.classList.remove('active');
-                        dollRotBtn.textContent = "🔄 旋轉";
-                        cancelAnimationFrame(animationFrameId);
-                        
-                        avatar3D.style.transition = "camera-orbit 0.4s ease";
-                        avatar3D.cameraOrbit = "0deg 90deg 105%";
-                        setTimeout(() => {
-                            avatar3D.style.transition = "none";
-                            resetIdleTimer(); 
-                        }, 400);
-                    }
-                });
-                // 💡 互動三：【手動干擾與點擊彩蛋綜合機制】
-                avatar3D.addEventListener('pointerdown', (e) => {
-                    if (e.target.tagName !== 'MODEL-VIEWER') return;
-
+                if (isRotationMode) {
+                    dollRotBtn.classList.add('active');
+                    dollRotBtn.textContent = "⏸️ 靜止";
                     clearTimeout(idleTimeout);
                     clearInterval(idleInterval);
-
-                    avatar3D.cameraTarget = "0m 0.65m 0m"; 
-                    isUserDragging = true; 
-                    cancelAnimationFrame(animationFrameId); 
-                    clearTimeout(userInteractingTimeout);
-
-                    lastPointerX = e.clientX;
-                    lastPointerTime = Date.now();
-                    fastDragDuration = 0;
-
-                    const currentOrbit = avatar3D.getCameraOrbit();
-                    if (currentOrbit) {
-                        lastTrackedTheta = currentOrbit.theta * (180 / Math.PI);
-                    }
-
-                    if (!isRotationMode) {
-                        if (!isFloating) {
-                            isFloating = true;
-                            dollFloatFilm.classList.add('doll-film-floating-active');
-                            setTimeout(() => {
-                                dollFloatFilm.classList.remove('doll-film-floating-active');
-                                isFloating = false;
-                            }, 3200); 
-                        }
-
-                        clickCount++;
-                        clearTimeout(clickTimeout);
-                        clickTimeout = setTimeout(() => { clickCount = 0; }, 400); 
-
-                        // 🚀 連點 3 下觸發（套用不重複洗牌池）
-                        if (clickCount >= 2) {
-                            showBubble(getNextTalk('click', clickTalks));
-                            clickCount = 0; 
-                        }
-                    }
-                });
-
-                // 💡 監聽手動滑鼠拖曳快速甩動 + 慢速分段累積旋轉的彩蛋 4 完全體
-                window.addEventListener('pointermove', (e) => {
-                    if (!isUserDragging || !isRotationMode) return;
-                    
-                    const now = Date.now();
-                    const dt = (now - lastPointerTime) / 1000; 
-                    avatar3D.cameraTarget = "0m 0.65m 0m";
-
-                    if (dt > 0) {
-                        const deltaX = Math.abs(e.clientX - lastPointerX);
-                        const speed = deltaX / dt; 
-                        
-                        if (speed > 1200) {
-                            fastDragDuration += dt;
-                            if (fastDragDuration >= 0.8) { 
-                                showBubble(getNextTalk('fastRot', fastRotTalks));
-                                fastDragDuration = 0; 
-                                accumulatedRotation = 0; 
-                            }
-                        } else {
-                            fastDragDuration = Math.max(0, fastDragDuration - dt);
-                        }
-                    }
                     
                     const currentOrbit = avatar3D.getCameraOrbit();
                     if (currentOrbit) {
-                        const currentTheta = currentOrbit.theta * (180 / Math.PI);
-                        let angleDiff = Math.abs(currentTheta - lastTrackedTheta);
-                        
-                        if (angleDiff > 180) {
-                            angleDiff = 360 - angleDiff;
-                        }
-                        
-                        if (angleDiff > 0.05 && angleDiff < 90) { 
-                            accumulatedRotation += angleDiff;
-                        }
-                        
-                        lastTrackedTheta = currentTheta;
-
-                        // 🚀 轉滿 1 圈觸發（套用不重複洗牌池）
-                        if (accumulatedRotation >= 360) {
-                            showBubble(getNextTalk('fastRot', fastRotTalks));
-                            accumulatedRotation = 0; 
-                            fastDragDuration = 0;    
-                        }
+                        rotationAngle = currentOrbit.theta * (180 / Math.PI); 
                     }
+                    isUserDragging = false;
+                    playRotationLoop();
+                } else {
+                    dollRotBtn.classList.remove('active');
+                    dollRotBtn.textContent = "🔄 旋轉";
+                    cancelAnimationFrame(animationFrameId);
                     
-                    lastPointerX = e.clientX;
-                    lastPointerTime = now;
-                });
-
-                const handlePointerUp = () => {
-                    avatar3D.cameraTarget = "0m 0.65m 0m"; 
-                    if (!isUserDragging) return;
-                    isUserDragging = false; 
-                    fastDragDuration = 0; 
-                    
-                    const currentOrbit = avatar3D.getCameraOrbit();
-                    if (currentOrbit) {
-                        rotationAngle = currentOrbit.theta * (180 / Math.PI);
-                    }
-
-                    clearTimeout(userInteractingTimeout);
-                    userInteractingTimeout = setTimeout(() => {
-                        if (isRotationMode && !isUserDragging) {
-                            playRotationLoop();
-                        } else if (!isRotationMode) {
-                            resetIdleTimer();
-                        }
-                    }, 1200);
-                };
-                window.addEventListener('pointerup', handlePointerUp);
-
-                // 💡 互動四：全網頁眼神跟隨技術（2秒來回4次晃動觸發）
-                window.addEventListener('mousemove', (event) => {
-                    if (isRotationMode || isUserDragging) return;
-
-                    resetIdleTimer();
-
-                    avatar3D.cameraTarget = "0m 0.65m 0m";
-
-                    const rect = avatar3D.getBoundingClientRect();
-                    const dollCenterX = rect.left + rect.width / 2;
-                    const dollCenterY = rect.top + rect.height / 2;
-
-                    const deltaX = event.clientX - dollCenterX;
-                    const deltaY = event.clientY - dollCenterY;
-
-                    const maxTurnAngle = 30; 
-                    const targetYaw = -(deltaX / window.innerWidth) * 90;
-                    const constrainedYaw = Math.max(-maxTurnAngle, Math.min(maxTurnAngle, targetYaw));
-                    const targetPitch = 90 - Math.max(-8, Math.min(8, (deltaY / window.innerHeight) * 30));
-
-                    avatar3D.cameraOrbit = `${constrainedYaw}deg ${targetPitch}deg 105%`;
-
-                    const now = Date.now();
-                    let currentDir = 0;
-                    if (constrainedYaw - lastYaw > 2) currentDir = 1;
-                    else if (constrainedYaw - lastYaw < -2) currentDir = -1;
-
-                    if (currentDir !== 0 && currentDir !== lastDirection) {
-                        if (swingStartTime === null) {
-                            swingStartTime = now;
-                            swingDirectionChanges = 0;
-                        }
-                        swingDirectionChanges++;
-                        lastDirection = currentDir;
-                    }
-                    lastYaw = constrainedYaw;
-
-                    if (now - lastMoveTime > 500) {
-                        swingStartTime = null;
-                        swingDirectionChanges = 0;
-                    }
-                    lastMoveTime = now;
-
-                    // 🚀 眼神調戲觸發（套用不重複洗牌池）
-                    if (swingStartTime && (now - swingStartTime >= 2000) && swingDirectionChanges >= 6) {
-                        showBubble(getNextTalk('swing', swingTalks));
-                        swingStartTime = null; 
-                        swingDirectionChanges = 0;
-                    }
-                });
-
-                document.addEventListener('mouseleave', () => {
-                    if (isRotationMode || isUserDragging) return;
-                    avatar3D.cameraTarget = "0m 0.65m 0m";
-                    
-                    avatar3D.style.transition = "camera-orbit 0.3s ease";
+                    avatar3D.style.transition = "camera-orbit 0.4s ease";
                     avatar3D.cameraOrbit = "0deg 90deg 105%";
                     setTimeout(() => {
                         avatar3D.style.transition = "none";
-                    }, 300);
+                        resetIdleTimer(); 
+                    }, 400);
+                }
+            });
+
+            // 💡 互動三：【手動干擾與點擊彩蛋綜合機制】
+            avatar3D.addEventListener('pointerdown', (e) => {
+                clearTimeout(idleTimeout);
+                clearInterval(idleInterval);
+
+                avatar3D.cameraTarget = "0m 0.65m 0m"; 
+                isUserDragging = true; 
+                cancelAnimationFrame(animationFrameId); 
+                clearTimeout(userInteractingTimeout);
+
+                lastPointerX = e.clientX;
+                lastPointerTime = Date.now();
+                fastDragDuration = 0;
+
+                const currentOrbit = avatar3D.getCameraOrbit();
+                if (currentOrbit) {
+                    lastTrackedTheta = currentOrbit.theta * (180 / Math.PI);
+                }
+
+                if (!isRotationMode) {
+                    if (!isFloating) {
+                        isFloating = true;
+                        dollFloatFilm.classList.add('doll-film-floating-active');
+                        setTimeout(() => {
+                            dollFloatFilm.classList.remove('doll-film-floating-active');
+                            isFloating = false;
+                        }, 3200); 
+                    }
+
+                    clickCount++;
+                    clearTimeout(clickTimeout);
+                    clickTimeout = setTimeout(() => { clickCount = 0; }, 400); 
+
+                    // 🚀 連點 3 下觸發（套用不重複洗牌池）
+                    if (clickCount >= 2) {
+                        showBubble(getNextTalk('click', clickTalks));
+                        clickCount = 0; 
+                    }
+                }
+            });
+
+            // 💡 監聽手動滑鼠拖曳快速甩動 + 慢速分段累積旋轉的彩蛋 4 完全體
+            window.addEventListener('pointermove', (e) => {
+                if (!isUserDragging || !isRotationMode) return;
+                
+                const now = Date.now();
+                const dt = (now - lastPointerTime) / 1000; 
+                avatar3D.cameraTarget = "0m 0.65m 0m";
+
+                if (dt > 0) {
+                    const deltaX = Math.abs(e.clientX - lastPointerX);
+                    const speed = deltaX / dt; 
                     
+                    if (speed > 1200) {
+                        fastDragDuration += dt;
+                        if (fastDragDuration >= 0.8) { 
+                            showBubble(getNextTalk('fastRot', fastRotTalks));
+                            fastDragDuration = 0; 
+                            accumulatedRotation = 0; 
+                        }
+                    } else {
+                        fastDragDuration = Math.max(0, fastDragDuration - dt);
+                    }
+                }
+                
+                const currentOrbit = avatar3D.getCameraOrbit();
+                if (currentOrbit) {
+                    const currentTheta = currentOrbit.theta * (180 / Math.PI);
+                    let angleDiff = Math.abs(currentTheta - lastTrackedTheta);
+                    
+                    if (angleDiff > 180) { angleDiff = 360 - angleDiff; }
+                    if (angleDiff > 0.05 && angleDiff < 90) { accumulatedRotation += angleDiff; }
+                    
+                    lastTrackedTheta = currentTheta;
+
+                    // 🚀 轉滿 1 圈觸發（套用不重複洗牌池）
+                    if (accumulatedRotation >= 360) {
+                        showBubble(getNextTalk('fastRot', fastRotTalks));
+                        accumulatedRotation = 0; 
+                        fastDragDuration = 0;    
+                    }
+                }
+                lastPointerX = e.clientX;
+                lastPointerTime = now;
+            });
+
+            window.addEventListener('pointerup', () => {
+                avatar3D.cameraTarget = "0m 0.65m 0m"; 
+                if (!isUserDragging) return;
+                isUserDragging = false; 
+                fastDragDuration = 0; 
+                
+                const currentOrbit = avatar3D.getCameraOrbit();
+                if (currentOrbit) { rotationAngle = currentOrbit.theta * (180 / Math.PI); }
+
+                clearTimeout(userInteractingTimeout);
+                userInteractingTimeout = setTimeout(() => {
+                    if (isRotationMode && !isUserDragging) { playRotationLoop(); } 
+                    else if (!isRotationMode) { resetIdleTimer(); }
+                }, 1200);
+            });
+
+            // 💡 互動四：全網頁眼神跟隨技術（2秒來回4次晃動觸發）
+            window.addEventListener('mousemove', (event) => {
+                if (isRotationMode || isUserDragging) return;
+                resetIdleTimer();
+                avatar3D.cameraTarget = "0m 0.65m 0m";
+
+                const rect = avatar3D.getBoundingClientRect();
+                const dollCenterX = rect.left + rect.width / 2;
+                const dollCenterY = rect.top + rect.height / 2;
+                const deltaX = event.clientX - dollCenterX;
+                const deltaY = event.clientY - dollCenterY;
+
+                const maxTurnAngle = 30; 
+                const targetYaw = -(deltaX / window.innerWidth) * 90;
+                const constrainedYaw = Math.max(-maxTurnAngle, Math.min(maxTurnAngle, targetYaw));
+                const targetPitch = 90 - Math.max(-8, Math.min(8, (deltaY / window.innerHeight) * 30));
+
+                avatar3D.cameraOrbit = `${constrainedYaw}deg ${targetPitch}deg 105%`;
+
+                const now = Date.now();
+                let currentDir = 0;
+                if (constrainedYaw - lastYaw > 2) currentDir = 1;
+                else if (constrainedYaw - lastYaw < -2) currentDir = -1;
+
+                if (currentDir !== 0 && currentDir !== lastDirection) {
+                    if (swingStartTime === null) {
+                        swingStartTime = now;
+                        swingDirectionChanges = 0;
+                    }
+                    swingDirectionChanges++;
+                    lastDirection = currentDir;
+                }
+                lastYaw = constrainedYaw;
+
+                if (now - lastMoveTime > 500) {
                     swingStartTime = null;
                     swingDirectionChanges = 0;
-                    resetIdleTimer();
-                });
-            }
+                }
+                lastMoveTime = now;
 
-            if (document.readyState === 'complete') {
-                init3DModel();
-            } else {
-                window.addEventListener('load', init3DModel);
+                // 🚀 眼神調戲觸發（套用不重複洗牌池）
+                if (swingStartTime && (now - swingStartTime >= 2000) && swingDirectionChanges >= 6) {
+                    showBubble(getNextTalk('swing', swingTalks));
+                    swingStartTime = null; 
+                    swingDirectionChanges = 0;
+                }
+            });
+
+            document.addEventListener('mouseleave', () => {
+                if (isRotationMode || isUserDragging) return;
+                avatar3D.cameraTarget = "0m 0.65m 0m";
+                
+                avatar3D.style.transition = "camera-orbit 0.3s ease";
+                avatar3D.cameraOrbit = "0deg 90deg 105%";
+                setTimeout(() => { avatar3D.style.transition = "none"; }, 300);
+                
+                swingStartTime = null;
+                swingDirectionChanges = 0;
+                resetIdleTimer();
+            });
+        }
+        // ============================================================
+        // 1. JavaScript 邏輯：雙層巢狀便利貼與大圖切換核心邏輯            
+        // ============================================================
+        
+        // 📂 【設定資料庫】直接在裡面幫每一張加上專屬的 footer！
+        const stickyData = {
+            orange: {
+                title: "Happy Graduation 🎓",
+                notes: [
+                    { text: "文武雙全、才貌兼備的經理在這裡留下了訊息...🎉", image: "orange_bg.png", footer: "Amber💖" } // 👈 橘色專屬
+                ]
+            },
+            red: {
+                title: "Best Wish ❤️",
+                notes: [
+                    { text: "開銀行的里長伯在這裡留下了足跡...🥰", image: "red_pic1.png", footer: "Lily✨" },      // 👈 第一張自訂
+                    { text: "系醬&可頌的媽咪在這裡撒了閃亮亮金粉...✨", image: "red_pic2.png", footer: "可可💞" },     // 👈 第二張自訂
+                    { text: "茶寶大廚、三貓家長在這裡煮了一道菜...🍳", image: "red_pic3.png", footer: "小暴😎" },    // 👈 第三張自訂
+                    { text: "行動點歌機在這裡唱了一首歌...🎵", image: "red_pic4.png", footer: "惠茹🌼" }       // 👈 第四張自訂
+                ]
+            },
+            green: {
+                title: "From TP Members 👥",
+                notes: [
+                    { text: "手搖飲好夥伴在這裡放了杯奶茶...🥤", image: "green_pic1.png", footer: "Yuri🍥" },
+                    { text: "門市綠手指在此種了一棵植物...🌱", image: "green_pic2.png", footer: "思秀🍀" },
+                    { text: "秦徹的小狸花在這裡借放了一下梅菲斯特...🐦‍⬛", image: "green_pic3.png", footer: "Lucy🐱" },
+                    { text: "會計專家在這裡留下了薪資條...💵", image: "green_pic4.png", footer: "咨昱🌞" }
+                ]
+            }
+        };
+
+        // 綁定網頁上的 HTML 標籤元件
+        const stickyWallOverlay = document.getElementById('stickyWallOverlay');
+        const stickyWallTitle = document.getElementById('stickyWallTitle');
+        const stickyNotesGrid = document.getElementById('stickyNotesGrid');
+        const stickyGalleryScreen = document.getElementById('stickyGalleryScreen');
+
+        // 打開【第一層】：鋪設並開啟便利貼牆面（個別自訂右下角版）
+        function openStickyWall(type) {
+            const data = stickyData[type];
+            if (!data || !stickyWallTitle || !stickyNotesGrid || !stickyWallOverlay) return;
+
+            stickyWallTitle.textContent = data.title;
+            stickyNotesGrid.innerHTML = ""; // 清空上一次的舊紙條
+
+            if (data.notes.length === 1) { stickyNotesGrid.classList.add('single-note'); } 
+            else { stickyNotesGrid.classList.remove('single-note'); }
+
+            data.notes.forEach((note, index) => {
+                const noteCard = document.createElement('div');
+                noteCard.className = 'sticky-note-card';
+                
+                // 🔒 點擊功能完全保留！點了依然能完美開啟大圖，絕不受影響
+                noteCard.onclick = function() { openStickyGallery(note.image); };
+
+                // 🌸 核心修正：將原本死板的 #\${index + 1} 📌，改為自動讀取你自訂的 note.footer！
+                const displayFooter = note.footer ? note.footer : `#${index + 1} 📌`;
+
+                noteCard.innerHTML = `
+                    <div class="sticky-note-text">${note.text}</div>
+                    <div class="sticky-note-footer">${displayFooter}</div>
+                `;
+                stickyNotesGrid.appendChild(noteCard);
+            });
+
+            stickyWallOverlay.classList.add('show');
+        }
+
+        // 🔴 關閉【第一層】：點擊大 (×) 鈕，徹底退出牆面回到手機桌面
+        function closeStickyWall() { if (stickyWallOverlay) stickyWallOverlay.classList.remove('show'); }
+
+        // 🖼️ 打開【第二層】：進入滿版大圖展示
+        function openStickyGallery(imagePath) { if (stickyGalleryScreen) { stickyGalleryScreen.style.backgroundImage = `url('${imagePath}')`; stickyGalleryScreen.classList.add('show'); } }
+
+        // 🔙 關閉【第二層】：在大圖時點擊返回鍵 ➔ 只關閉大圖，安全回到【第一層便利貼牆】
+        function closeStickyGallery() { if (stickyGalleryScreen) stickyGalleryScreen.classList.remove('show'); }
+
+        // ============================================================
+        // 3. JavaScript 邏輯：手機內建本地實體影片播放系統           
+        // ============================================================
+        
+        // 💡 1. 在這裡設定您準備好的影片檔案名稱（建議格式為 mp4）
+        const localVideoName = "my_video.mp4"; 
+
+        const ytVideoBtn = document.getElementById('ytVideoBtn');
+        const ytPlayerOverlay = document.getElementById('ytPlayerOverlay');
+        const ytPlayerIframePlace = document.getElementById('ytPlayerIframePlace');
+
+        // 🎬 🟢 打開手機內建影片播放器
+        if (ytVideoBtn) {
+            ytVideoBtn.addEventListener('click', function(e) {
+                e.stopPropagation(); // 防止點擊干擾到網頁其他元件
+                
+                // 💡 核心改動：改為動態生成網頁原生 <video> 標籤，並開啟 controls (進度條播放鍵) 方便操作
+                if (ytPlayerIframePlace) {
+                    ytPlayerIframePlace.innerHTML = `<video id="phoneInnerVideo" src="${localVideoName}" controls autoplay></video>`;
+                }
+                
+                // 💡 打開影片時，自動暫暫背景音樂 (bgm.mp3)，避免聲音打架
+                if (bgMusic && !bgMusic.paused) {
+                    bgMusic.pause();
+                    if (musicToggleBtn) musicToggleBtn.textContent = '🔇';
+                    if (marqueeText) marqueeText.style.animationPlayState = 'paused';
+                }
+
+                // 顯示影片播放器遮罩層
+                if (ytPlayerOverlay) ytPlayerOverlay.classList.add('show');
+            });
+        }
+
+        // ❌ 🔴 關閉手機內建影片播放器
+        function closeYtPlayer() {
+            // 抓取剛才生成的影片元件並將它暫停
+            const currentVideo = document.getElementById('phoneInnerVideo');
+            if (currentVideo) currentVideo.pause();
+            
+            // 💡 徹底將影片結構從網頁中拔除，確保背景完全安靜不偷放聲音
+            if (ytPlayerIframePlace) ytPlayerIframePlace.innerHTML = "";
+            
+            // 隱藏影片播放器遮罩層
+            if (ytPlayerOverlay) ytPlayerOverlay.classList.remove('show');
+            
+            // 💡 貼心優化：影片關閉後，自動將原本的網頁背景音樂恢復播放！
+            if (bgMusic) {
+                bgMusic.play().then(() => {
+                    if (musicToggleBtn) musicToggleBtn.textContent = '🔊';
+                    if (marqueeText) marqueeText.style.animationPlayState = 'running';
+                }).catch(e => console.log("重啟背景音樂遭攔截:", e));
             }
         }
 
