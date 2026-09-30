@@ -1200,13 +1200,62 @@
             transform: scale(0.95);
         }
 
+        /* ============================================================ */
+        /* 📱 窄螢幕專屬：左上方高質感毛玻璃切換按鈕（自適應寬高版）     */
+        /* ============================================================ */
+        .mobile-switch-btn {
+            display: none; /* 電腦版預設隱藏 */
+            position: fixed;
+            
+            /* 📐 與右邊音樂盒手機版 RWD 定位 100% 絕對水平對齊 */
+            top: 15px;       
+            left: 15px;
+            
+            /* 💡 修正：拔掉 140px 固定寬度，改用 flex 且自適應字數長度，寬高完美跟隨音樂盒 */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: auto; 
+            
+            /* 📐 100% 複製你音樂控制盒的內襯留白，確保高度完全一模一樣 */
+            padding: 4px 8px; 
+            box-sizing: border-box;
+            
+            z-index: 1001; /* 確保高於 3D 滿版畫面 */
+            
+            /* 🎨 100% 複製你音樂控制盒的色系、毛玻璃與調淡透明度 */
+            background-color: rgba(0, 0, 0, 0.45); 
+            backdrop-filter: blur(5px); 
+            -webkit-backdrop-filter: blur(5px);
+            opacity: 0.65; 
+            
+            /* 🎨 100% 複製你音樂控制盒的文字格式與字體大小 (10px) */
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-weight: bold;
+            text-align: center;
+            white-space: nowrap; /* 防止字數縮緊時換行 */
+            
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            cursor: pointer;
+            user-select: none;
+            transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s;
+        }
+        .mobile-switch-btn:hover {
+            opacity: 1; /* 滑鼠移上去或手指碰觸時變清晰，維持與音樂盒一致 */
+        }
+        .mobile-switch-btn:active {
+            transform: scale(0.95);
+        }
 
         /* ============================================================ */
         /* 🧱 窄螢幕 RWD 終極防護網解鎖與滿版 3D 娃娃切換樣式整合         */
         /* ============================================================ */
         @media screen and (max-width: 834px) {
             .mobile-switch-btn {
-                display: block !important;
+                display: inline-flex !important; /* 手機版強制現形 */
             }
 
             .phone-container {
@@ -1220,13 +1269,13 @@
                 transform: scale(0.5) !important;
             }
 
-            /* 💡 修正：在娃娃模式下，音樂控制盒與左邊按鈕都維持原位現形，且高度完美不變 */
+            /* 💡 在娃娃模式下，音樂控制盒與左邊按鈕都維持原位現形，且高度完美不變 */
             body.show-pure-doll .music-control-box,
             body.show-pure-doll .mobile-switch-btn {
                 position: fixed !important;
                 top: 15px !important;
                 z-index: 1001 !important; 
-                opacity: 0.65 !important; /* 切換後依然維持相同的調淡高級質感 */
+                opacity: 0.65 !important; 
             }
 
             /* 🧱 終極復活：當激活「純娃娃模式」時，強行將 3D 娃娃主容器撐滿全螢幕並置中 */
@@ -1244,15 +1293,22 @@
                 left: 0 !important; 
                 bottom: 0 !important; 
                 
-                /* 💡 修正：透過縮放微調，把整隻娃娃在手機版畫面上縮小（從原來的1.0縮小到0.75倍） */
+                /* 💡 透過縮放微調，把整隻娃娃在手機版畫面上縮小至 0.75倍，比例更精緻 */
                 transform: scale(0.75) !important;
                 transform-origin: center center !important;
+            }
+
+            /* 💡 核心新增：當處於靜止模式且沒有在自動旋轉時，透過 class 阻斷 model-viewer 的原生拖曳 */
+            /* 這樣手勢就不會觸發原生轉圈，而是改由 JavaScript 完美執行手指拖曳移動跟隨！ */
+            body.show-pure-doll .doll-3d-container.lock-touch-drag model-viewer {
+                pointer-events: none !important;
             }
 
             /* 擴大隔離膜尺寸 */
             body.show-pure-doll .doll-float-film {
                 width: 90vw !important;
                 height: 70dvh !important;
+                pointer-events: auto !important; /* 確保隔離膜能捕捉到手指滑動的軌跡 */
             }
 
             /* 微調滿版模式下的對話氣泡，自動往上推高，避免擋到帥臉 */
@@ -1265,7 +1321,7 @@
         /* 📟 平板橫屏 (835px ~ 1194px) 專屬防護網同步解鎖 */
         @media screen and (min-width: 835px) and (max-width: 1194px) and (orientation: landscape) {
             .mobile-switch-btn {
-                display: block !important;
+                display: inline-flex !important;
             }
             body.show-pure-doll .phone-container {
                 opacity: 0 !important;
@@ -1292,6 +1348,7 @@
                 height: 75dvh !important;
             }
         }
+
 
 
     </style>
@@ -2203,11 +2260,94 @@
 
 
         // ============================================================
-        // 📱 核心新增：手勢阻斷眼神專注版「查看夏以晝 / 查看手機」雙向核心邏輯
+        // 📱 核心新增：手勢跟隨優化與自轉解鎖版「查看夏以晝 / 查看手機」雙向核心邏輯
         // ============================================================
         const mobileSwitchBtn = document.getElementById('mobileSwitchBtn');
 
         if (mobileSwitchBtn) {
+            // 💡 1. 核心升級：讓原本的眼神頭部跟隨邏輯，同時支援手機「手指按住滑動」的手勢觸發
+            function handleFollowLogic(clientX, clientY) {
+                if (isRotationMode || isUserDragging) return;
+                resetIdleTimer();
+
+                const avatar3D = document.getElementById('avatar3D');
+                if (!avatar3D) return;
+
+                avatar3D.cameraTarget = "0m 0.65m 0m";
+
+                const rect = avatar3D.getBoundingClientRect();
+                const dollCenterX = rect.left + rect.width / 2;
+                const dollCenterY = rect.top + rect.height / 2;
+
+                const deltaX = clientX - dollCenterX;
+                const deltaY = clientY - dollCenterY;
+
+                const maxTurnAngle = 30; 
+                const targetYaw = -(deltaX / window.innerWidth) * 90;
+                const constrainedYaw = Math.max(-maxTurnAngle, Math.min(maxTurnAngle, targetYaw));
+                const targetPitch = 90 - Math.max(-8, Math.min(8, (deltaY / window.innerHeight) * 30));
+
+                avatar3D.cameraOrbit = `${constrainedYaw}deg ${targetPitch}deg 105%`;
+
+                const now = Date.now();
+                let currentDir = 0;
+                if (constrainedYaw - lastYaw > 2) currentDir = 1;
+                else if (constrainedYaw - lastYaw < -2) currentDir = -1;
+
+                if (currentDir !== 0 && currentDir !== lastDirection) {
+                    if (swingStartTime === null) {
+                        swingStartTime = now;
+                        swingDirectionChanges = 0;
+                    }
+                    swingDirectionChanges++;
+                    lastDirection = currentDir;
+                }
+                lastYaw = constrainedYaw;
+
+                if (now - lastMoveTime > 500) {
+                    swingStartTime = null;
+                    swingDirectionChanges = 0;
+                }
+                lastMoveTime = now;
+
+                if (swingStartTime && (now - swingStartTime >= 2000) && swingDirectionChanges >= 6) {
+                    showBubble(getNextTalk('swing', swingTalks));
+                    swingStartTime = null; 
+                    swingDirectionChanges = 0;
+                }
+            }
+
+            // 💡 2. 監聽全網頁觸控拖曳事件，一鍵灌入眼神頭部跟隨技術！
+            window.addEventListener('touchmove', function(event) {
+                // 如果正處於滿版娃娃畫面，且沒有在旋轉模式，就啟動手指按住滑動跟隨
+                if (document.body.classList.contains('show-pure-doll') && !isRotationMode && !isUserDragging) {
+                    if (event.touches && event.touches[0]) {
+                        handleFollowLogic(event.touches[0].clientX, event.touches[0].clientY);
+                    }
+                }
+            }, { passive: true });
+
+
+            // 💡 3. 每當音樂盒模式（旋轉/靜止）改變時，同步智慧型動態切換手機防觸控穿幫類別
+            // 這樣可以確保靜止時強制眼神跟隨，而自轉模式時「旋轉功能」100% 復活、完全不被鎖死！
+            const dollRotBtnElement = document.getElementById('dollRotBtn');
+            const doll3DContainer = document.querySelector('.doll-3d-container');
+            
+            if (dollRotBtnElement && doll3DContainer) {
+                // 定時輪詢檢查當前的 isRotationMode 狀態，進行智慧財產保護隔離切換
+                setInterval(function() {
+                    if (document.body.classList.contains('show-pure-doll')) {
+                        if (isRotationMode) {
+                            doll3DContainer.classList.remove('lock-touch-drag'); // 🔄 自轉模式下：解鎖控制權，旋轉復活！
+                        } else {
+                            doll3DContainer.classList.add('lock-touch-drag');    // ⏸️ 靜止模式下：鎖定原生拖曳，專注眼神跟隨！
+                        }
+                    }
+                }, 100);
+            }
+
+
+            // 💡 4. 「查看夏以晝 / 查看手機」雙向按鈕點擊主控邏輯
             mobileSwitchBtn.addEventListener('click', function(e) {
                 e.stopPropagation(); // 防止點擊事件干擾到網頁其他元件
                 
@@ -2217,14 +2357,11 @@
 
                 if (isPureDollMode) {
                     // 🔄 切換至 3D 娃娃模式
-                    mobileSwitchBtn.textContent = "✈️ 查看手機";
+                    mobileSwitchBtn.textContent = "📱 查看手機";
                     console.log("⚡ [畫面切換] 已成功進入夏以晝滿版互動彩蛋模式！");
 
-                    // 💡 核心修正：進入手機滿版模式時，徹底阻斷原生手勢拖曳旋轉，強制回歸眼神與頭部移動跟隨
+                    // 延遲 150ms 等 CSS 淡入動畫播完、容器尺寸固定後，再進行單次精準安全更新
                     if (avatar3D) {
-                        avatar3D.removeAttribute('camera-controls'); // 拔除手動旋轉控制防穿幫
-                        
-                        // 延遲 150ms 等 CSS 淡入動畫播完、容器尺寸固定後，再進行單次精準安全更新
                         setTimeout(function() {
                             try {
                                 if (typeof avatar3D.updateFraming === 'function') {
@@ -2232,7 +2369,7 @@
                                 } else {
                                     window.dispatchEvent(new Event('resize')); 
                                 }
-                                console.log("⚡ [尺寸防護牆] 3D 滿版視角已安全刷新完成，完美阻斷崩潰錯誤！");
+                                console.log("⚡ [尺寸防護牆] 3D 滿版視角已安全刷新完成！");
                             } catch (err) {
                                 console.log("重繪防護輕微跳過: ", err);
                             }
@@ -2244,18 +2381,14 @@
                     mobileSwitchBtn.textContent = "👀 查看夏以晝";
                     console.log("⚡ [畫面切換] 已成功返回擬真假手機主畫面！");
 
-                    // 貼心優化：切換回電腦假手機版時，將原本的手動控制權（旋轉、拖曳）安全補回來
-                    if (avatar3D) {
-                        avatar3D.setAttribute('camera-controls', '');
-                    }
-
-                    // 重新輕微刷新一次排版
+                    // 貼心優化：切換回手機畫面時也輕微刷新一次排版尺寸
                     setTimeout(function() {
                         window.dispatchEvent(new Event('resize'));
                     }, 50);
                 }
             });
         }
+
 
 
 
