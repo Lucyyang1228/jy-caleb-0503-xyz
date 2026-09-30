@@ -1251,6 +1251,58 @@
         }
 
         /* ============================================================ */
+        /* 📱 窄螢幕專屬：左上方高質感毛玻璃切換按鈕（極致高度鎖定版）  */
+        /* ============================================================ */
+        .mobile-switch-btn {
+            display: none; /* 電腦版預設隱藏 */
+            position: fixed;
+            
+            /* 📐 與右邊音樂盒手機版 RWD 定位 100% 絕對水平對齊 */
+            top: 15px;       
+            left: 15px;
+            
+            /* 💡 終極修正：直接鎖定與音樂盒完全一致的 30px 固定高度，徹底解決不同瀏覽器字體排版擠壓的偏移 Bug */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 30px; 
+            width: auto; 
+            
+            /* 📐 內襯改為左右留白 12px，高度由上面 height 鎖定，達成絕對等高 */
+            padding: 0 12px; 
+            box-sizing: border-box;
+            
+            z-index: 1001; /* 確保高於 3D 滿版畫面 */
+            
+            /* 🎨 100% 複製你音樂控制盒的色系、毛玻璃與調淡透明度 */
+            background-color: rgba(0, 0, 0, 0.45); 
+            backdrop-filter: blur(5px); 
+            -webkit-backdrop-filter: blur(5px);
+            opacity: 0.65; 
+            
+            /* 🎨 100% 複製你音樂控制盒的文字格式與字體大小 (10px) */
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-weight: bold;
+            text-align: center;
+            white-space: nowrap; /* 防止字數縮緊時換行 */
+            
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            cursor: pointer;
+            user-select: none;
+            transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s;
+        }
+        .mobile-switch-btn:hover {
+            opacity: 1; /* 滑鼠移上去或手指碰觸時變清晰，維持與音樂盒一致 */
+        }
+        .mobile-switch-btn:active {
+            transform: scale(0.95);
+        }
+
+
+        /* ============================================================ */
         /* 🧱 窄螢幕 RWD 終極防護網解鎖與滿版 3D 娃娃切換樣式整合         */
         /* ============================================================ */
         @media screen and (max-width: 834px) {
@@ -1298,8 +1350,7 @@
                 transform-origin: center center !important;
             }
 
-            /* 💡 核心新增：當處於靜止模式且沒有在自動旋轉時，透過 class 阻斷 model-viewer 的原生拖曳 */
-            /* 這樣手勢就不會觸發原生轉圈，而是改由 JavaScript 完美執行手指拖曳移動跟隨！ */
+            /* 當處於靜止模式且沒有在自動旋轉時，透過 class 阻斷 model-viewer 的原生拖曳 */
             body.show-pure-doll .doll-3d-container.lock-touch-drag model-viewer {
                 pointer-events: none !important;
             }
@@ -2260,12 +2311,14 @@
 
 
         // ============================================================
-        // 📱 核心新增：手勢跟隨優化與自轉解鎖版「查看夏以晝 / 查看手機」雙向核心邏輯
+        // 📱 核心新增：時序減震防崩潰版「查看夏以晝 / 查看手機」雙向核心邏輯
         // ============================================================
         const mobileSwitchBtn = document.getElementById('mobileSwitchBtn');
 
         if (mobileSwitchBtn) {
-            // 💡 1. 核心升級：讓原本的眼神頭部跟隨邏輯，同時支援手機「手指按住滑動」的手勢觸發
+            let touchTicking = false; // 💡 建立高流暢防震時序鎖，防止觸控過載導致 WebGL 崩潰
+
+            // 💡 1. 核心眼神頭部跟隨邏輯
             function handleFollowLogic(clientX, clientY) {
                 if (isRotationMode || isUserDragging) return;
                 resetIdleTimer();
@@ -2317,12 +2370,21 @@
                 }
             }
 
-            // 💡 2. 監聽全網頁觸控拖曳事件，一鍵灌入眼神頭部跟隨技術！
+            // 💡 2. 監聽全網頁觸控拖曳事件（升級高感度防過載減震鎖 🛡️）
             window.addEventListener('touchmove', function(event) {
                 // 如果正處於滿版娃娃畫面，且沒有在旋轉模式，就啟動手指按住滑動跟隨
                 if (document.body.classList.contains('show-pure-doll') && !isRotationMode && !isUserDragging) {
                     if (event.touches && event.touches[0]) {
-                        handleFollowLogic(event.touches[0].clientX, event.touches[0].clientY);
+                        const touchData = event.touches[0];
+                        
+                        // 🚀 核心優化：利用瀏覽器官方動畫幀鎖定，在極快滑動下也只在重繪時跑一次，硬體絕不過載崩潰！
+                        if (!touchTicking) {
+                            window.requestAnimationFrame(function() {
+                                handleFollowLogic(touchData.clientX, touchData.clientY);
+                                touchTicking = false;
+                            });
+                            touchTicking = true;
+                        }
                     }
                 }
             }, { passive: true });
@@ -2334,7 +2396,6 @@
             const doll3DContainer = document.querySelector('.doll-3d-container');
             
             if (dollRotBtnElement && doll3DContainer) {
-                // 定時輪詢檢查當前的 isRotationMode 狀態，進行智慧財產保護隔離切換
                 setInterval(function() {
                     if (document.body.classList.contains('show-pure-doll')) {
                         if (isRotationMode) {
@@ -2388,7 +2449,6 @@
                 }
             });
         }
-
 
 
 
