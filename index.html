@@ -1095,11 +1095,84 @@
         }
 
 
+        /* ============================================================ */
+        /* 🌟 新增：手機版 3D 模式切換按鈕與排版控制 🌟 */
+        /* ============================================================ */
+        
+        /* 1. 切換按鈕基本樣式（與音樂盒完全對齊、同高、同底色） */
+        .view-toggle-box {
+            position: fixed; 
+            top: 25px;       
+            right: 235px;     /* 固定在音樂控制盒（寬度200px + 間距10px）的左邊 */
+            display: none;    /* 💡 預設隱藏：只有在寬度 ≤ 834px 的行動裝置上才顯示 */
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.45); 
+            padding: 6px 12px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px); 
+            -webkit-backdrop-filter: blur(5px);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 11px;
+            font-weight: bold;
+            opacity: 0.65;   
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            cursor: pointer; 
+            z-index: 999;
+            height: 16px;     /* 強制內部高度與音樂盒對齊 */
+            white-space: nowrap;
+        }
+        .view-toggle-box:hover {
+            opacity: 1;
+        }
+        .view-toggle-box:active {
+            transform: scale(0.95);
+        }
+
+        /* 2. 行動裝置 RWD 覆寫防護網 (寬度 ≤ 834px) */
+        @media screen and (max-width: 834px) {
+            /* 讓切換按鈕在手機上現形 */
+            .view-toggle-box {
+                display: flex !important;
+                top: 15px !important; 
+                right: 165px !important; /* 配合手機版音樂盒寬度縮小，靠左靠齊 */
+                height: 14px !important;  /* 對齊手機版音樂盒高度 */
+            }
+
+            /* 💡 當身體被蓋上 mobile-3d-mode 印章時：強行隱藏假手機桌面 */
+            body.mobile-3d-mode .phone-container {
+                display: none !important;
+            }
+
+            /* 💡 當身體被蓋上 mobile-3d-mode 印章時：解放 3D 娃娃，並精準控制顯示比例 */
+            body.mobile-3d-mode .doll-3d-container {
+                display: flex !important;
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                bottom: auto !important;
+                transform: translate(-50%, -50%) !important; /* 全螢幕絕對居中 */
+                width: 85vw !important;                      /* 寬度適中不擠壓對話框 */
+                height: 65vh !important;                     /* 高度縮減至 60-70% 舒適視覺比例 */
+                z-index: 100 !important;
+            }
+            
+            /* 行動裝置 3D 模式下的旋轉按鈕微調，防止擋到娃娃腳部 */
+            body.mobile-3d-mode .doll-rot-btn {
+                margin-top: 5px !important;
+                padding: 4px 12px !important;
+            }
+        }
+
+
     </style>
 </head>
 
     <!-- ================= 💡 修正後：放在手機外、網頁視窗右上角的音樂控制組件 ================= -->
     <audio id="bgMusic" src="bgm.mp3" loop></audio>
+
+    <!-- 🌟 新增：左側的 3D/手機 檢視切換按鈕 🌟 -->
+    <div id="viewToggleBtn" class="view-toggle-box">查看夏以晝</div>
 
     <div class="music-control-box">
         <div class="marquee-wrapper">
@@ -1987,6 +2060,49 @@
                 }
             }, 100); // 每 0.1 秒偵測一次娃娃有沒有誕生
         })();
+
+
+        // ============================================================
+        // 🌟 新增：行動裝置 3D 人偶 / 假手機 雙向切換核心邏輯 🌟
+        // ============================================================
+        const viewToggleBtn = document.getElementById('viewToggleBtn');
+        let isMobile3DMode = false;
+
+        if (viewToggleBtn) {
+            viewToggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                isMobile3DMode = !isMobile3DMode;
+                
+                if (isMobile3DMode) {
+                    // 1. 切換成 3D 娃娃檢視
+                    document.body.classList.add('mobile-3d-mode');
+                    viewToggleBtn.textContent = "查看手機";
+                    
+                    // 2. ⚡ 效能與防崩潰優化防線
+                    // 當切換到 3D 頁面時，主動觸發一次網頁尺寸刷新，逼 model-viewer 即時重新計算渲染範圍
+                    window.dispatchEvent(new Event('resize')); 
+                    
+                    // 3. 喚醒掛機碎碎念定時器（如果旋轉模式沒開的話）
+                    if (typeof resetIdleTimer === "function") {
+                        resetIdleTimer();
+                    }
+                } else {
+                    // 1. 切回原本的假手機桌面
+                    document.body.classList.remove('mobile-3d-mode');
+                    viewToggleBtn.textContent = "查看夏以晝";
+                    
+                    // 2. ⚡ 效能與防崩潰優化防線
+                    // 當走回手機桌面、看不見 3D 娃娃時，主動清除發呆計時器，暫停背景多餘的 JS 台詞輪詢運算，防止耗電崩潰
+                    if (typeof idleTimeout !== "undefined") clearTimeout(idleTimeout);
+                    if (typeof idleInterval !== "undefined") clearInterval(idleInterval);
+                    
+                    // 3. 隱藏可能殘留的對話框
+                    const mobBubble = document.getElementById('dollSpeechBubble');
+                    if (mobBubble) mobBubble.classList.remove('show');
+                }
+            });
+        }
 
 
     </script>
