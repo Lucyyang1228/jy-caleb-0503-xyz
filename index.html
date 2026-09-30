@@ -1352,40 +1352,82 @@
 
 
         /* ============================================================ */
+        /* 📱 窄螢幕專屬：左上方高質感毛玻璃切換按鈕（終極極簡對稱版）  */
+        /* ============================================================ */
+        .mobile-switch-btn {
+            display: none; /* 電腦版預設隱藏 */
+            position: fixed;
+            
+            /* 📐 與右邊音樂控制盒 100% 絕對水平與垂直高度對齊 */
+            top: 25px;       
+            left: 25px;
+            
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            
+            z-index: 1001; /* 確保高於 3D 滿版畫面 */
+            
+            /* 🎨 100% 複製你音樂控制盒的色系、毛玻璃與調淡透明度 */
+            background-color: rgba(0, 0, 0, 0.45); 
+            backdrop-filter: blur(5px); 
+            -webkit-backdrop-filter: blur(5px);
+            opacity: 0.65; 
+            
+            /* 🎨 100% 複製你音樂控制盒的文字格式與字體大小 (11px) */
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 11px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-weight: bold;
+            text-align: center;
+            white-space: nowrap; 
+            
+            border-radius: 20px;
+            cursor: pointer;
+            user-select: none;
+            transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s;
+        }
+
+
+        /* ============================================================ */
         /* 🧱 窄螢幕 RWD 終極防護網解鎖與滿版 3D 娃娃切換樣式整合         */
         /* ============================================================ */
         @media screen and (max-width: 834px) {
-            /* 💡 終極對齊：鎖定手機版 RWD 下兩邊的高度都強制切齊 15px */
+            /* 💡 終極對齊：鎖定手機版下，左邊按鈕與右邊音樂盒的寬高完全用同一個數字強制鎖死！ */
+            .mobile-switch-btn, .music-control-box {
+                position: fixed !important;
+                top: 15px !important;
+                height: 25px !important;    /* 💡 強制高度只有 25px，完美變精巧 */
+                width: 130px !important;    /* 💡 強制寬度只有 130px，絕不超長過大 */
+                padding: 0 !important;      /* 💡 清空 Padding 擠壓 */
+                font-size: 10px !important; /* 💡 字體統一為 10px */
+                z-index: 1001 !important; 
+                opacity: 0.65 !important;
+                box-sizing: border-box !important;
+            }
             .mobile-switch-btn {
                 display: inline-flex !important; 
-                top: 15px !important;
                 left: 15px !important;
-                width: 140px !important; /* 💡 100% 複製你音樂控制盒手機版 140px 的寬度 */
-                padding: 4px 8px !important; /* 💡 100% 複製你音樂控制盒手機版 4px 8px 的 Padding */
+            }
+            .music-control-box {
+                right: 15px !important;
             }
 
+            /* 為了平滑切換，幫假手機加上動畫過渡效果 */
             .phone-container {
                 transition: opacity 0.4s ease, transform 0.4s ease !important;
             }
 
-            /* 切換至娃娃模式時，只讓假手機淡出 */
+            /* 💡 核心修改：切換至娃娃模式時，只讓假手機淡出縮小 */
             body.show-pure-doll .phone-container {
                 opacity: 0 !important;
                 pointer-events: none !important;
                 transform: scale(0.5) !important;
             }
 
-            /* 💡 切換後，左右兩邊的頂部按鈕都完美保留、絕對對齊 */
-            body.show-pure-doll .music-control-box,
-            body.show-pure-doll .mobile-switch-btn {
-                position: fixed !important;
-                top: 15px !important;
-                z-index: 1001 !important; 
-                opacity: 0.65 !important; 
-            }
-
-            /* 🧱 終極復活：當激活「純娃娃模式」時，強行將 3D 娃娃主容器撐滿全螢幕並置中 */
-            body.show-pure-doll .doll-3d-container {
+            /* 🧱 終極防崩潰安全復活防線：天生就在手機版把 3D 娃娃容器撐滿全螢幕並置中 */
+            /* 這樣載入 3D 模型時，容器尺寸完全沒有任何劇烈改變，100% 絕對不會再觸發 WebGL 網頁錯誤崩庫！ */
+            .doll-3d-container {
                 display: flex !important; 
                 position: fixed !important;
                 top: 0 !important;
@@ -1395,28 +1437,28 @@
                 justify-content: center !important;
                 align-items: center !important;
                 flex-direction: column-reverse !important;
-                z-index: 500 !important; 
-                left: 0 !important; 
-                bottom: 0 !important; 
+                z-index: 2 !important; /* 天生待在假手機(5)的底層安全下載 */
+                padding: 0 !important;
+                margin: 0 !important;
                 
-                /* 💡 透過縮放微調，把整隻娃娃在手機版畫面上縮小至 0.75倍，比例更精緻 */
-                transform: scale(0.75) !important;
+                /* 💡 透過縮放微調，把整隻娃娃在手機版畫面上縮小至 0.72倍，比例非常精巧好看 */
+                transform: scale(0.72) !important;
                 transform-origin: center center !important;
             }
-
-            /* 💡 徹底移除原本阻斷拖曳轉圈的 pointer-events 控制，還原比照電腦版所有功能 */
-            body.show-pure-doll .doll-3d-container model-viewer {
-                pointer-events: auto !important;
+            
+            /* 當激活娃娃模式時，把娃娃的層級提到最上層（高於手機容器）以方便點擊互動 */
+            body.show-pure-doll .doll-3d-container {
+                z-index: 500 !important;
             }
 
             /* 擴大隔離膜尺寸，維持觸碰彩蛋 */
-            body.show-pure-doll .doll-float-film {
+            .doll-float-film {
                 width: 90vw !important;
                 height: 70dvh !important;
             }
 
             /* 微調滿版模式下的對話氣泡 */
-            body.show-pure-doll .doll-speech-bubble {
+            .doll-speech-bubble {
                 top: -45px !important;
                 width: 75% !important;
             }
@@ -1447,11 +1489,8 @@
                 left: 0 !important;
                 bottom: 0 !important;
             }
-            body.show-pure-doll .doll-float-film {
-                width: 80vw !important;
-                height: 75dvh !important;
-            }
         }
+
 
 
     </style>
@@ -1470,16 +1509,10 @@
         <div id="musicToggleBtn" class="music-icon-btn">🔊</div>
     </div>
 
-<body>
-
 
 <body>
 
-
-<body>
-
-
-    <!-- 🌟【替換為 div 標籤】抹除天生排版差距，左右大小寬高與音樂盒達成 100% 絕對完美等對齊 🌟 -->
+    <!-- 🌟 左右大小、寬高、尺寸與音樂盒完全一致的物理鎖定版 🌟 -->
     <!-- ========================================================================= -->
     <div id="mobileSwitchBtn" class="mobile-switch-btn">🧡 查看夏以晝</div>
     <!-- ========================================================================= -->
@@ -2308,108 +2341,42 @@
 
 
         // ============================================================
-        // ⚡ 核心終極防線：密碼正確或網頁載入後，定時自動觸發一次 resize 
-        // 假裝使用者按了 F12，強行逼 3D 娃娃在別台電腦也 100% 刷新尺寸並顯形！
-        // ============================================================
-        window.addEventListener('load', function() {
-            // 在網頁完全載入後的 0.5 秒與 1.5 秒，主動各觸發一次視窗刷新訊號
-            setTimeout(function() {
-                window.dispatchEvent(new Event('resize'));
-                console.log("⚡ [尺寸防護牆] 已自動為娃娃刷新螢幕排版尺寸 (第一發)...");
-            }, 500);
-
-            setTimeout(function() {
-                window.dispatchEvent(new Event('resize'));
-                console.log("⚡ [尺寸防護牆] 已自動為娃娃刷新螢幕排版尺寸 (第二發)...");
-            }, 1500);
-        });
-
-
-        // ============================================================
-        // ⏳ 新增：3D 娃娃百分比下載進度即時計算器
-        // 專門傾聽 Google 3D 引擎的 progress 訊號，同步刷新網頁上的數字與線條長度
-        // ============================================================
-        (function() {
-            // 監聽網頁，直到 3D 娃娃組件在畫面上誕生
-            const checkViewerExist = setInterval(function() {
-                const avatar3D = document.getElementById('avatar3D');
-                if (avatar3D) {
-                    clearInterval(checkViewerExist); // 抓到娃娃了，停止計時器
-
-                    // 綁定網頁上的文字與進度條本體
-                    const progressText = document.getElementById('dollProgressText');
-                    const progressBarFill = document.getElementById('dollProgressBarFill');
-
-                    // 註冊進度條事件
-                    avatar3D.addEventListener('progress', function(event) {
-                        // event.detail.totalProgress 是 Google 算好的小數點（從 0.0 到 1.0）
-                        const progressRatio = event.detail.totalProgress;
-                        
-                        // 將小數點乘以 100 並四捨五入，換算成完美的整數百分比（例如 45）
-                        const percentage = Math.round(progressRatio * 100);
-
-                        // 1. 即時動態刷新文字內容
-                        if (progressText) {
-                            progressText.textContent = "正在下載中... " + percentage + "%";
-                        }
-
-                        // 2. 即時動態控制進度條的百分比寬度，寬度會漂亮地往右滑動填滿
-                        if (progressBarFill) {
-                            progressBarFill.style.width = percentage + "%";
-                        }
-                    });
-                }
-            }, 100); // 每 0.1 秒偵測一次娃娃有沒有誕生
-        })();
-
-
-        // ============================================================
-        // 📱 核心新增：純淨回歸防崩潰版「查看夏以晝 / 查看手機」雙向核心邏輯
+        // 📱 核心新增：純淨回歸安全重繪版「查看夏以晝 / 查看手機」雙向核心邏輯
         // ============================================================
         const mobileSwitchBtn = document.getElementById('mobileSwitchBtn');
 
         if (mobileSwitchBtn) {
-            // 💡 1. 「查看夏以晝 / 查看手機」雙向按鈕點擊主控邏輯
             mobileSwitchBtn.addEventListener('click', function(e) {
                 e.stopPropagation(); // 防止點擊事件干擾到網頁其他元件
                 
-                // 幫 body 貼上/拔掉 狀態印章，觸發 CSS 的滿版轉換動畫
+                // 幫 body 貼上/拔掉 狀態印章，觸發 CSS 的假手機淡出/娃娃現形
                 const isPureDollMode = document.body.classList.toggle('show-pure-doll');
                 const avatar3D = document.getElementById('avatar3D');
 
                 if (isPureDollMode) {
                     // 🔄 切換至 3D 娃娃模式
-                    mobileSwitchBtn.textContent = "✈️ 查看手機";
-                    console.log("⚡ [畫面切換] 已成功進入夏以晝滿版互動彩蛋模式！");
+                    mobileSwitchBtn.textContent = "📱 查看手機";
+                    console.log("⚡ [畫面切換] 已成功進入夏以晝滿版互動模式");
 
-                    // 延遲 150ms 等 CSS 淡入動畫播完、容器尺寸固定後，再進行單次精準安全更新
-                    if (avatar3D) {
+                    // 💡 安全重繪：僅做單次官方平滑排版刷新，完全不影響加載
+                    if (avatar3D && typeof avatar3D.updateFraming === 'function') {
                         setTimeout(function() {
                             try {
-                                if (typeof avatar3D.updateFraming === 'function') {
-                                    avatar3D.updateFraming(); // Google 官方平滑刷新排版安全函式
-                                } else {
-                                    window.dispatchEvent(new Event('resize')); 
-                                }
-                                console.log("⚡ [尺寸防護牆] 3D 滿版視角已安全刷新完成！");
+                                avatar3D.updateFraming();
                             } catch (err) {
-                                console.log("重繪防護輕微跳過: ", err);
+                                console.log(err);
                             }
-                        }, 150);
+                        }, 100);
                     }
 
                 } else {
                     // 🔄 切換回假手機畫面
                     mobileSwitchBtn.textContent = "🧡 查看夏以晝";
-                    console.log("⚡ [畫面切換] 已成功返回擬真假手機主畫面！");
-
-                    // 貼心優化：切換回手機畫面時也輕微刷新一次排版尺寸
-                    setTimeout(function() {
-                        window.dispatchEvent(new Event('resize'));
-                    }, 50);
+                    console.log("⚡ [畫面切換] 已成功返回擬真假手機主畫面");
                 }
             });
         }
+
 
 
     </script>
