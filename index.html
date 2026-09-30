@@ -1157,6 +1157,51 @@
 
 
         /* ============================================================ */
+        /* 📱 窄螢幕專屬：左上方高質感毛玻璃切換按鈕（100% 複製音樂盒色系）*/
+        /* ============================================================ */
+        .mobile-switch-btn {
+            display: none; /* 電腦版預設隱藏 */
+            position: fixed;
+            
+            /* 📐 完美與右邊音樂盒手機版 RWD 定位 100% 絕對對齊 */
+            top: 15px;       
+            left: 15px;
+            
+            /* 📐 100% 複製你音樂控制盒的寬度比例與內襯留白 */
+            width: 140px; 
+            padding: 4px 8px;
+            box-sizing: border-box;
+            
+            z-index: 1001; /* 確保高於 3D 滿版畫面 */
+            
+            /* 🎨 100% 複製你音樂控制盒的色系、毛玻璃與調淡透明度 */
+            background-color: rgba(0, 0, 0, 0.45); 
+            backdrop-filter: blur(5px); 
+            -webkit-backdrop-filter: blur(5px);
+            opacity: 0.65; 
+            
+            /* 🎨 100% 複製你音樂控制盒的文字格式與字體大小 (10px) */
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-weight: bold;
+            text-align: center;
+            
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            cursor: pointer;
+            user-select: none;
+            transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s;
+        }
+        .mobile-switch-btn:hover {
+            opacity: 1; /* 滑鼠移上去或手指碰觸時變清晰，維持與音樂盒一致的動態 */
+        }
+        .mobile-switch-btn:active {
+            transform: scale(0.95);
+        }
+
+
+        /* ============================================================ */
         /* 🧱 窄螢幕 RWD 終極防護網解鎖與滿版 3D 娃娃切換樣式整合         */
         /* ============================================================ */
         @media screen and (max-width: 834px) {
@@ -1168,17 +1213,20 @@
                 transition: opacity 0.4s ease, transform 0.4s ease !important;
             }
 
-            /* 💡 修正：切換至娃娃模式時，只讓假手機淡出！音樂控制盒絕對維持現形、可點擊 */
+            /* 切換至娃娃模式時，只讓假手機淡出 */
             body.show-pure-doll .phone-container {
                 opacity: 0 !important;
                 pointer-events: none !important;
                 transform: scale(0.5) !important;
             }
 
-            /* 💡 修正：音樂控制盒在娃娃模式下不要縮小消失，維持高層級正常運作 */
-            body.show-pure-doll .music-control-box {
-                z-index: 1001 !important; /* 確保不被娃娃遮擋 */
-                opacity: 0.65 !important;  /* 維持你原本的半透明微調質感 */
+            /* 💡 修正：在娃娃模式下，音樂控制盒與左邊按鈕都維持原位現形，且高度完美不變 */
+            body.show-pure-doll .music-control-box,
+            body.show-pure-doll .mobile-switch-btn {
+                position: fixed !important;
+                top: 15px !important;
+                z-index: 1001 !important; 
+                opacity: 0.65 !important; /* 切換後依然維持相同的調淡高級質感 */
             }
 
             /* 🧱 終極復活：當激活「純娃娃模式」時，強行將 3D 娃娃主容器撐滿全螢幕並置中 */
@@ -1193,12 +1241,15 @@
                 align-items: center !important;
                 flex-direction: column-reverse !important;
                 z-index: 500 !important; 
-                transform: scale(1) !important;
                 left: 0 !important; 
                 bottom: 0 !important; 
+                
+                /* 💡 修正：透過縮放微調，把整隻娃娃在手機版畫面上縮小（從原來的1.0縮小到0.75倍） */
+                transform: scale(0.75) !important;
+                transform-origin: center center !important;
             }
 
-            /* 擴大隔離膜尺寸，讓夏以晝在手機滿版模式下可以展現完美全身比例 */
+            /* 擴大隔離膜尺寸 */
             body.show-pure-doll .doll-float-film {
                 width: 90vw !important;
                 height: 70dvh !important;
@@ -1243,7 +1294,6 @@
         }
 
 
-
     </style>
 </head>
 
@@ -1266,10 +1316,13 @@
 <body>
 
 
-    <!-- 🌟 音樂控制盒跟查看按鈕在同一排，水平完美對齊 🌟 -->
+<body>
+
+    <!-- 🌟 音樂控制盒跟查看按鈕在同一排，水平完美 100% 絕對對齊 🌟 -->
     <!-- ========================================================================= -->
-    <button id="mobileSwitchBtn" class="mobile-switch-btn">👀 查看夏以晝</button>
+    <button id="mobileSwitchBtn" class="mobile-switch-btn">🧡 查看夏以晝</button>
     <!-- ========================================================================= -->
+
 
 
         <!-- ================= 📦 左下角 3D 娃娃主結構 ================= -->
@@ -2150,7 +2203,7 @@
 
 
         // ============================================================
-        // 📱 核心新增：安全修復 WebGL 崩潰版「查看夏以晝 / 查看手機」雙向核心邏輯
+        // 📱 核心新增：手勢阻斷眼神專注版「查看夏以晝 / 查看手機」雙向核心邏輯
         // ============================================================
         const mobileSwitchBtn = document.getElementById('mobileSwitchBtn');
 
@@ -2164,18 +2217,20 @@
 
                 if (isPureDollMode) {
                     // 🔄 切換至 3D 娃娃模式
-                    mobileSwitchBtn.textContent = "📱 查看手機";
+                    mobileSwitchBtn.textContent = "✈️ 查看手機";
                     console.log("⚡ [畫面切換] 已成功進入夏以晝滿版互動彩蛋模式！");
 
-                    // 💡 安全修復防線：如果抓得到 Google 3D 引擎，使用內建安全重繪，不觸發強烈物理 resize
+                    // 💡 核心修正：進入手機滿版模式時，徹底阻斷原生手勢拖曳旋轉，強制回歸眼神與頭部移動跟隨
                     if (avatar3D) {
+                        avatar3D.removeAttribute('camera-controls'); // 拔除手動旋轉控制防穿幫
+                        
                         // 延遲 150ms 等 CSS 淡入動畫播完、容器尺寸固定後，再進行單次精準安全更新
                         setTimeout(function() {
                             try {
                                 if (typeof avatar3D.updateFraming === 'function') {
                                     avatar3D.updateFraming(); // Google 官方平滑刷新排版安全函式
                                 } else {
-                                    window.dispatchEvent(new Event('resize')); // 備份防呆
+                                    window.dispatchEvent(new Event('resize')); 
                                 }
                                 console.log("⚡ [尺寸防護牆] 3D 滿版視角已安全刷新完成，完美阻斷崩潰錯誤！");
                             } catch (err) {
@@ -2189,13 +2244,19 @@
                     mobileSwitchBtn.textContent = "👀 查看夏以晝";
                     console.log("⚡ [畫面切換] 已成功返回擬真假手機主畫面！");
 
-                    // 貼心優化：切換回手機畫面時也輕微刷新一次
+                    // 貼心優化：切換回電腦假手機版時，將原本的手動控制權（旋轉、拖曳）安全補回來
+                    if (avatar3D) {
+                        avatar3D.setAttribute('camera-controls', '');
+                    }
+
+                    // 重新輕微刷新一次排版
                     setTimeout(function() {
                         window.dispatchEvent(new Event('resize'));
                     }, 50);
                 }
             });
         }
+
 
 
 
