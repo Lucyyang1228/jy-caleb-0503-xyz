@@ -1094,12 +1094,11 @@
             transition: width 0.1s ease-out; /* 讓長高過程看起來平滑柔順 */
         }
 
-
         /* ============================================================ */
-        /* 🌟 終極完全體：手機版 3D 模式切換按鈕（黃金比例與硬體防崩潰優化） 🌟 */
+        /* 🌟 終極完全體：靠左切換按鈕（同高不壓扁、GPU 空間防崩潰防護網） 🌟 */
         /* ============================================================ */
         
-        /* 1. 切換按鈕基本樣式：強行鎖死實體總高度，完美對齊音樂盒 */
+        /* 1. 電腦版/平板橫屏下的基本外觀：與音樂盒相同 padding 與 font-size 彈性撐開 */
         .view-toggle-box {
             position: fixed; 
             top: 25px;       
@@ -1109,18 +1108,15 @@
             justify-content: center;
             background-color: rgba(0, 0, 0, 0.45); 
             
-            /* 📐 核心尺寸鎖死：強制與音樂盒套用完全一致的 padding 與實體行高控制 */
-            padding: 6px 14px !important; 
-            box-sizing: border-box !important;
-            height: 28px !important;        /* 👈 關鍵鎖死：強制在任何裝置下都是完美的 28px 總高度 */
-            line-height: 16px !important;   /* 👈 修正文字行高，確保正中央對齊不歪斜 */
+            /* 📐 與音樂控制盒（電腦版）套用完全一模一樣的排版參數，自然撐開 */
+            padding: 6px 12px !important; 
+            font-size: 11px !important;
+            font-weight: bold !important;
             
             border-radius: 20px;
             backdrop-filter: blur(5px); 
             -webkit-backdrop-filter: blur(5px);
             color: rgba(255, 255, 255, 0.9);
-            font-size: 11px;
-            font-weight: bold;
             opacity: 0.65;   
             transition: opacity 0.3s ease, transform 0.3s ease;
             cursor: pointer; 
@@ -1136,19 +1132,23 @@
 
         /* 2. 行動裝置 RWD 覆寫防護網 (寬度 ≤ 834px) */
         @media screen and (max-width: 834px) {
-            /* 讓切換按鈕在手機左上角以相同的高度規格現形 */
+            /* 讓切換按鈕在手機左上角自然現形，規格完全複製手機版音樂盒 */
             .view-toggle-box {
                 display: flex !important;
                 top: 15px !important; 
                 left: 15px !important;  
-                height: 22px !important;       /* 👈 關鍵修改：與手機版音樂盒實體總高度完美對齊 */
-                line-height: 10px !important;  /* 確保手機版文字絕對置中 */
-                padding: 4px 12px !important;
+                
+                /* 📐 完美對齊關鍵：100% 複製你手機版音樂盒的縮放與 padding，絕對等高 */
+                padding: 4px 8px !important;     
+                font-size: 10px !important;
             }
 
-            /* 💡 當身體被蓋上 mobile-3d-mode 印章時：強行隱藏假手機桌面 */
+            /* 💡 終極防崩潰魔法：當進入 3D 模式時，不要用 display: none 拔掉手機殼 */
+            /* 改用 visibility: hidden，讓假手機在背景完美保持 WebGL 所需的尺寸計算，阻斷一切崩潰機率！ */
             body.mobile-3d-mode .phone-container {
-                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
             }
 
             /* 💡 當身體被蓋上 mobile-3d-mode 印章時：解放 3D 娃娃，並精準控制顯示比例 */
@@ -1170,7 +1170,6 @@
                 padding: 4px 12px !important;
             }
         }
-
 
 
     </style>
@@ -2072,7 +2071,7 @@
 
 
         // ============================================================
-        // 🌟 修正完全體：行動裝置雙向切換（加入快取安全阻斷，防止 WebGL 崩潰） 🌟
+        // 🌟 修正完全體：行動裝置雙向切換（GPU 空間防護與等高文字優化） 🌟
         // ============================================================
         const viewToggleBtn = document.getElementById('viewToggleBtn');
         let isMobile3DMode = false;
@@ -2087,31 +2086,20 @@
                     // 1. 切換按鈕文字
                     viewToggleBtn.textContent = "✈️ 查看手機";
                     
-                    // 2. ⚡ 核心防崩潰魔法：先為背景的假手機減輕負擔，暫停潛在的重繪
-                    const phoneBox = document.querySelector('.phone-container');
-                    if (phoneBox) phoneBox.style.opacity = "0"; 
-
-                    // 3. 延遲 150 毫秒（給予手機版瀏覽器充足的時間做垃圾回收與 GPU 記憶體釋放）
-                    // 隨後再正式打開 3D 娃娃印章並重新激活 3D 渲染，這樣就不會觸發「糟糕網路錯誤」！
-                    setTimeout(function() {
-                        document.body.classList.add('mobile-3d-mode');
-                        
-                        // 逼 model-viewer 即時在乾淨的空間重新定位，穩定現形
-                        window.dispatchEvent(new Event('resize')); 
-                        
-                        if (typeof resetIdleTimer === "function") {
-                            resetIdleTimer();
-                        }
-                    }, 150);
+                    // 2. 蓋上 3D 模式印章（改由 visibility 控制隱形，不中斷 WebGL 連結）
+                    document.body.classList.add('mobile-3d-mode');
+                    
+                    // 3. 觸發尺寸更新排程，讓 model-viewer 在舒適的 60-70% 容器中流暢渲染
+                    window.dispatchEvent(new Event('resize')); 
+                    
+                    if (typeof resetIdleTimer === "function") {
+                        resetIdleTimer();
+                    }
                     
                 } else {
                     // 1. 切回原本的假手機桌面
                     document.body.classList.remove('mobile-3d-mode');
                     viewToggleBtn.textContent = "🧡 查看夏以晝";
-                    
-                    // 恢復手機透明度
-                    const phoneBox = document.querySelector('.phone-container');
-                    if (phoneBox) phoneBox.style.opacity = "1";
                     
                     // 2. ⚡ 效能優化：隱藏娃娃時主動清除發呆定時器，不佔用後台硬體
                     if (typeof idleTimeout !== "undefined") clearTimeout(idleTimeout);
@@ -2123,7 +2111,6 @@
                 }
             });
         }
-
 
 
 
