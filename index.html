@@ -1094,21 +1094,20 @@
             transition: width 0.1s ease-out; /* 讓長高過程看起來平滑柔順 */
         }
 
-
         /* ============================================================ */
-        /* 🌟 新增：手機版 3D 模式切換按鈕與排版控制 🌟 */
+        /* 🌟 修正版：手機版 3D 模式切換按鈕（靠左對齊與防中斷排版） 🌟 */
         /* ============================================================ */
         
-        /* 1. 切換按鈕基本樣式（與音樂盒完全對齊、同高、同底色） */
+        /* 1. 切換按鈕基本樣式（移到左上角，維持與音樂盒相同的高度與質感） */
         .view-toggle-box {
             position: fixed; 
             top: 25px;       
-            right: 235px;     /* 固定在音樂控制盒（寬度200px + 間距10px）的左邊 */
-            display: none;    /* 💡 預設隱藏：只有在寬度 ≤ 834px 的行動裝置上才顯示 */
+            left: 25px;       /* 👈 關鍵修改：從 right 改成 left 25px，完美移到網頁左上角 */
+            display: none;    /* 💡 預設隱藏：只有在行動裝置上顯示，不影響電腦版 */
             align-items: center;
             justify-content: center;
             background-color: rgba(0, 0, 0, 0.45); 
-            padding: 6px 12px;
+            padding: 6px 14px; /* 增加一點左右內襯，放入圖示更好看 */
             border-radius: 20px;
             backdrop-filter: blur(5px); 
             -webkit-backdrop-filter: blur(5px);
@@ -1131,12 +1130,12 @@
 
         /* 2. 行動裝置 RWD 覆寫防護網 (寬度 ≤ 834px) */
         @media screen and (max-width: 834px) {
-            /* 讓切換按鈕在手機上現形 */
+            /* 讓切換按鈕在手機左上角精確現形 */
             .view-toggle-box {
                 display: flex !important;
                 top: 15px !important; 
-                right: 165px !important; /* 配合手機版音樂盒寬度縮小，靠左靠齊 */
-                height: 14px !important;  /* 對齊手機版音樂盒高度 */
+                left: 15px !important;  /* 👈 行動裝置下靠左留白 15px，完美對齊 */
+                height: 14px !important; /* 對齊手機版音樂盒高度 */
             }
 
             /* 💡 當身體被蓋上 mobile-3d-mode 印章時：強行隱藏假手機桌面 */
@@ -1165,14 +1164,15 @@
         }
 
 
+
     </style>
 </head>
 
     <!-- ================= 💡 修正後：放在手機外、網頁視窗右上角的音樂控制組件 ================= -->
     <audio id="bgMusic" src="bgm.mp3" loop></audio>
 
-    <!-- 🌟 新增：左側的 3D/手機 檢視切換按鈕 🌟 -->
-    <div id="viewToggleBtn" class="view-toggle-box">查看夏以晝</div>
+    <!-- 🌟 修正版：左上角獨立檢視切換按鈕 🌟 -->
+    <div id="viewToggleBtn" class="view-toggle-box">🧡 查看夏以晝</div>
 
     <div class="music-control-box">
         <div class="marquee-wrapper">
@@ -2063,7 +2063,7 @@
 
 
         // ============================================================
-        // 🌟 新增：行動裝置 3D 人偶 / 假手機 雙向切換核心邏輯 🌟
+        // 🌟 修正版：行動裝置雙向切換邏輯（靠左定位、自訂圖示與防中斷錯誤機制） 🌟
         // ============================================================
         const viewToggleBtn = document.getElementById('viewToggleBtn');
         let isMobile3DMode = false;
@@ -2075,13 +2075,15 @@
                 isMobile3DMode = !isMobile3DMode;
                 
                 if (isMobile3DMode) {
-                    // 1. 切換成 3D 娃娃檢視
+                    // 1. 先為 body 蓋上 3D 模式印章
                     document.body.classList.add('mobile-3d-mode');
-                    viewToggleBtn.textContent = "查看手機";
+                    viewToggleBtn.textContent = "✈️ 查看手機"; // 👈 修改：切換後變成飛機查看手機
                     
-                    // 2. ⚡ 效能與防崩潰優化防線
-                    // 當切換到 3D 頁面時，主動觸發一次網頁尺寸刷新，逼 model-viewer 即時重新計算渲染範圍
-                    window.dispatchEvent(new Event('resize')); 
+                    // 2. ⚡ 核心修復：使用 50 毫秒極短延遲，等手機畫面隱藏、空間完全釋放後，再逼 3D 引擎刷新尺寸
+                    // 這能完美防止 Google 3D 引擎因為瞬間偵測不到寬高而誤報「糟糕網路錯誤」的中斷狀況！
+                    setTimeout(function() {
+                        window.dispatchEvent(new Event('resize')); 
+                    }, 50);
                     
                     // 3. 喚醒掛機碎碎念定時器（如果旋轉模式沒開的話）
                     if (typeof resetIdleTimer === "function") {
@@ -2090,19 +2092,19 @@
                 } else {
                     // 1. 切回原本的假手機桌面
                     document.body.classList.remove('mobile-3d-mode');
-                    viewToggleBtn.textContent = "查看夏以晝";
+                    viewToggleBtn.textContent = "🧡 查看夏以晝"; // 👈 修改：切回原本的愛心查看夏以晝
                     
-                    // 2. ⚡ 效能與防崩潰優化防線
-                    // 當走回手機桌面、看不見 3D 娃娃時，主動清除發呆計時器，暫停背景多餘的 JS 台詞輪詢運算，防止耗電崩潰
+                    // 2. ⚡ 效能優化：隱藏娃娃時主動清除發呆定時器，避免背景浪費效能
                     if (typeof idleTimeout !== "undefined") clearTimeout(idleTimeout);
                     if (typeof idleInterval !== "undefined") clearInterval(idleInterval);
                     
-                    // 3. 隱藏可能殘留的對話框
+                    // 3. 隱藏可能殘流的對話框
                     const mobBubble = document.getElementById('dollSpeechBubble');
                     if (mobBubble) mobBubble.classList.remove('show');
                 }
             });
         }
+
 
 
     </script>
