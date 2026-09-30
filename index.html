@@ -1095,455 +1095,6 @@
         }
 
 
-        /* ============================================================ */
-        /* 📱 窄螢幕專屬：左上方高質感毛玻璃切換按鈕（預設在電腦版隱藏）   */
-        /* ============================================================ */
-        .mobile-switch-btn {
-            display: none; /* 電腦版預設隱藏 */
-            position: fixed;
-            top: 25px; /* 完美對齊右邊音樂控制盒的高度 */
-            left: 25px;
-            z-index: 999; /* 與音樂控制盒同層，確保點擊與視覺階層正確 */
-            background-color: rgba(0, 0, 0, 0.45); 
-            backdrop-filter: blur(5px); 
-            -webkit-backdrop-filter: blur(5px);
-            color: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
-            user-select: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-            transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s;
-        }
-        .mobile-switch-btn:hover {
-            background-color: rgba(0, 0, 0, 0.55);
-        }
-        .mobile-switch-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* ============================================================ */
-        /* 📱 窄螢幕專屬：左上方高質感毛玻璃切換按鈕（優化版）            */
-        /* ============================================================ */
-        .mobile-switch-btn {
-            display: none; /* 電腦版預設隱藏 */
-            position: fixed;
-            top: 25px; /* 💡 完美與右邊音樂控制盒 25px 絕對對齊 */
-            left: 25px;
-            z-index: 1001; /* 💡 提高層級，確保絕對高於 3D 滿版畫面 */
-            background-color: rgba(0, 0, 0, 0.45); 
-            backdrop-filter: blur(5px); 
-            -webkit-backdrop-filter: blur(5px);
-            color: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
-            user-select: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-            transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s;
-        }
-        .mobile-switch-btn:hover {
-            background-color: rgba(0, 0, 0, 0.55);
-        }
-        .mobile-switch-btn:active {
-            transform: scale(0.95);
-        }
-
-
-        /* ============================================================ */
-        /* 📱 窄螢幕專屬：左上方高質感毛玻璃切換按鈕（100% 複製音樂盒色系）*/
-        /* ============================================================ */
-        .mobile-switch-btn {
-            display: none; /* 電腦版預設隱藏 */
-            position: fixed;
-            
-            /* 📐 完美與右邊音樂盒手機版 RWD 定位 100% 絕對對齊 */
-            top: 15px;       
-            left: 15px;
-            
-            /* 📐 100% 複製你音樂控制盒的寬度比例與內襯留白 */
-            width: 140px; 
-            padding: 4px 8px;
-            box-sizing: border-box;
-            
-            z-index: 1001; /* 確保高於 3D 滿版畫面 */
-            
-            /* 🎨 100% 複製你音樂控制盒的色系、毛玻璃與調淡透明度 */
-            background-color: rgba(0, 0, 0, 0.45); 
-            backdrop-filter: blur(5px); 
-            -webkit-backdrop-filter: blur(5px);
-            opacity: 0.65; 
-            
-            /* 🎨 100% 複製你音樂控制盒的文字格式與字體大小 (10px) */
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 10px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-weight: bold;
-            text-align: center;
-            
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 20px;
-            cursor: pointer;
-            user-select: none;
-            transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s;
-        }
-        .mobile-switch-btn:hover {
-            opacity: 1; /* 滑鼠移上去或手指碰觸時變清晰，維持與音樂盒一致的動態 */
-        }
-        .mobile-switch-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* ============================================================ */
-        /* 📱 窄螢幕專屬：左上方高質感毛玻璃切換按鈕（自適應寬高版）     */
-        /* ============================================================ */
-        .mobile-switch-btn {
-            display: none; /* 電腦版預設隱藏 */
-            position: fixed;
-            
-            /* 📐 與右邊音樂盒手機版 RWD 定位 100% 絕對水平對齊 */
-            top: 15px;       
-            left: 15px;
-            
-            /* 💡 修正：拔掉 140px 固定寬度，改用 flex 且自適應字數長度，寬高完美跟隨音樂盒 */
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: auto; 
-            
-            /* 📐 100% 複製你音樂控制盒的內襯留白，確保高度完全一模一樣 */
-            padding: 4px 8px; 
-            box-sizing: border-box;
-            
-            z-index: 1001; /* 確保高於 3D 滿版畫面 */
-            
-            /* 🎨 100% 複製你音樂控制盒的色系、毛玻璃與調淡透明度 */
-            background-color: rgba(0, 0, 0, 0.45); 
-            backdrop-filter: blur(5px); 
-            -webkit-backdrop-filter: blur(5px);
-            opacity: 0.65; 
-            
-            /* 🎨 100% 複製你音樂控制盒的文字格式與字體大小 (10px) */
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 10px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-weight: bold;
-            text-align: center;
-            white-space: nowrap; /* 防止字數縮緊時換行 */
-            
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 20px;
-            cursor: pointer;
-            user-select: none;
-            transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s;
-        }
-        .mobile-switch-btn:hover {
-            opacity: 1; /* 滑鼠移上去或手指碰觸時變清晰，維持與音樂盒一致 */
-        }
-        .mobile-switch-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* ============================================================ */
-        /* 📱 窄螢幕專屬：左上方高質感毛玻璃切換按鈕（極致高度鎖定版）  */
-        /* ============================================================ */
-        .mobile-switch-btn {
-            display: none; /* 電腦版預設隱藏 */
-            position: fixed;
-            
-            /* 📐 與右邊音樂盒手機版 RWD 定位 100% 絕對水平對齊 */
-            top: 15px;       
-            left: 15px;
-            
-            /* 💡 終極修正：直接鎖定與音樂盒完全一致的 30px 固定高度，徹底解決不同瀏覽器字體排版擠壓的偏移 Bug */
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            height: 30px; 
-            width: auto; 
-            
-            /* 📐 內襯改為左右留白 12px，高度由上面 height 鎖定，達成絕對等高 */
-            padding: 0 12px; 
-            box-sizing: border-box;
-            
-            z-index: 1001; /* 確保高於 3D 滿版畫面 */
-            
-            /* 🎨 100% 複製你音樂控制盒的色系、毛玻璃與調淡透明度 */
-            background-color: rgba(0, 0, 0, 0.45); 
-            backdrop-filter: blur(5px); 
-            -webkit-backdrop-filter: blur(5px);
-            opacity: 0.65; 
-            
-            /* 🎨 100% 複製你音樂控制盒的文字格式與字體大小 (10px) */
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 10px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-weight: bold;
-            text-align: center;
-            white-space: nowrap; /* 防止字數縮緊時換行 */
-            
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 20px;
-            cursor: pointer;
-            user-select: none;
-            transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s;
-        }
-        .mobile-switch-btn:hover {
-            opacity: 1; /* 滑鼠移上去或手指碰觸時變清晰，維持與音樂盒一致 */
-        }
-        .mobile-switch-btn:active {
-            transform: scale(0.95);
-        }
-
-
-        /* ============================================================ */
-        /* 📱 窄螢幕專屬：左上方高質感毛玻璃切換按鈕（終極 div 絕對等高版）*/
-        /* ============================================================ */
-        .mobile-switch-btn {
-            display: none; /* 電腦版預設隱藏 */
-            position: fixed;
-            
-            /* 📐 與右邊音樂控制盒 100% 絕對水平與垂直高度對齊 */
-            top: 25px;       
-            left: 25px;
-            
-            /* 💡 核心修改：改為 inline-flex 的 div 排版，並指定與音樂盒完全一致的 200px 滿版框與內襯留白，確保大小高度絕對一模一樣 */
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 200px; 
-            padding: 6px 12px;
-            box-sizing: border-box;
-            
-            z-index: 1001; /* 確保高於 3D 滿版畫面 */
-            
-            /* 🎨 100% 複製你音樂控制盒的色系、毛玻璃與調淡透明度 */
-            background-color: rgba(0, 0, 0, 0.45); 
-            backdrop-filter: blur(5px); 
-            -webkit-backdrop-filter: blur(5px);
-            opacity: 0.65; 
-            
-            /* 🎨 100% 複製你音樂控制盒的文字格式與字體大小 (11px) */
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 11px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-weight: bold;
-            text-align: center;
-            white-space: nowrap; 
-            
-            border-radius: 20px;
-            cursor: pointer;
-            user-select: none;
-            transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s;
-        }
-        .mobile-switch-btn:hover {
-            opacity: 1; /* 移動端碰觸時變清晰，維持與音樂盒一致 */
-        }
-        .mobile-switch-btn:active {
-            transform: scale(0.95);
-        }
-
-
-        /* ============================================================ */
-        /* 📱 窄螢幕專屬：左上方高質感毛玻璃切換按鈕（終極極簡對稱版）  */
-        /* ============================================================ */
-        .mobile-switch-btn {
-            display: none; /* 電腦版預設隱藏 */
-            position: fixed;
-            
-            /* 📐 與右邊音樂控制盒 100% 絕對水平與垂直高度對齊 */
-            top: 25px;       
-            left: 25px;
-            
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            
-            z-index: 1001; /* 確保高於 3D 滿版畫面 */
-            
-            /* 🎨 100% 複製你音樂控制盒的色系、毛玻璃與調淡透明度 */
-            background-color: rgba(0, 0, 0, 0.45); 
-            backdrop-filter: blur(5px); 
-            -webkit-backdrop-filter: blur(5px);
-            opacity: 0.65; 
-            
-            /* 🎨 100% 複製你音樂控制盒的文字格式與字體大小 (11px) */
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 11px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-weight: bold;
-            text-align: center;
-            white-space: nowrap; 
-            
-            border-radius: 20px;
-            cursor: pointer;
-            user-select: none;
-            transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s;
-        }
-
-
-        /* ============================================================ */
-        /* 📱 窄螢幕專屬：左上方高質感毛玻璃切換按鈕（極致流線對齊版）  */
-        /* ============================================================ */
-        .mobile-switch-btn {
-            display: none; /* 電腦版預設隱藏 */
-            position: fixed;
-            
-            /* 📐 與右邊音樂控制盒 100% 絕對水平對齊 */
-            top: 25px;       
-            left: 25px;
-            
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            
-            /* 📐 100% 複製你音樂控制盒的內襯留白與固定寬度 */
-            padding: 6px 12px;
-            box-sizing: border-box;
-            
-            z-index: 1001; /* 確保高於 3D 滿版畫面 */
-            
-            /* 🎨 100% 複製你音樂控制盒的色系、毛玻璃與調淡透明度 */
-            background-color: rgba(0, 0, 0, 0.45); 
-            backdrop-filter: blur(5px); 
-            -webkit-backdrop-filter: blur(5px);
-            opacity: 0.65; 
-            
-            /* 🎨 100% 複製你音樂控制盒的文字格式與字體大小 (11px) */
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 11px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-weight: bold;
-            text-align: center;
-            white-space: nowrap; 
-            
-            border-radius: 20px;
-            cursor: pointer;
-            user-select: none;
-            transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s;
-        }
-
-
-        /* ============================================================ */
-        /* 🧱 窄螢幕 RWD 終極防護網解鎖與滿版 3D 娃娃切換樣式整合         */
-        /* ============================================================ */
-        @media screen and (max-width: 834px) {
-            /* 💡 終極對齊：在手機版 RWD 下，讓左邊按鈕 100% 複製音樂盒 140px 的寬度與 Padding 定位 */
-            .mobile-switch-btn {
-                display: inline-flex !important; 
-                position: fixed !important;
-                top: 15px !important;
-                left: 15px !important;
-                width: 140px !important; /* 💡 鎖定 140px，寬度、長度、大小跟音樂盒完全一模一樣！ */
-                padding: 4px 8px !important; /* 💡 100% 複製音樂盒 Padding，高度絕對一致 */
-                font-size: 10px !important; 
-            }
-
-            .phone-container {
-                transition: opacity 0.4s ease, transform 0.4s ease !important;
-            }
-
-            /* 當切換至娃娃模式時，只讓假手機淡出縮小 */
-            body.show-pure-doll .phone-container {
-                opacity: 0 !important;
-                pointer-events: none !important;
-                transform: scale(0.5) !important;
-            }
-
-            /* 切換後，兩邊的頂部按鈕與音樂控制盒都完美保留、絕對等高對齊 */
-            body.show-pure-doll .music-control-box,
-            body.show-pure-doll .mobile-switch-btn {
-                position: fixed !important;
-                top: 15px !important;
-                z-index: 1001 !important; 
-                opacity: 0.65 !important; 
-            }
-
-            /* 🧱 終極安全防線：在手機版上，3D 娃娃平時啟動「完全透明、點擊穿透模式」！ */
-            /* 百分之百隱形躲在背景下載，絕對不可能擋到、干擾到妳的手機畫面與任何點擊！ */
-            .doll-3d-container {
-                display: flex !important; 
-                position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100vw !important;
-                height: 100dvh !important;
-                justify-content: center !important;
-                align-items: center !important;
-                flex-direction: column-reverse !important;
-                
-                /* 💡 核心安全修正：平時完全透明、且滑鼠手指點擊直接穿透，絕對不阻擋手機 */
-                opacity: 0 !important;
-                pointer-events: none !important;
-                z-index: 1 !important; 
-                
-                padding: 0 !important;
-                margin: 0 !important;
-                
-                /* 💡 修正：拔掉 scale(0.72) 縮放，讓娃娃維持大張清晰的原本大小，不縮得太小 */
-                transform: none !important; 
-                transition: opacity 0.4s ease, z-index 0.1s ease !important;
-            }
-            
-            /* 💡 核心修正：只有在真正按下「查看夏以晝」時，娃娃才會現形、並解除穿補，浮上來互動！ */
-            body.show-pure-doll .doll-3d-container {
-                opacity: 1 !important;
-                pointer-events: auto !important;
-                z-index: 500 !important;
-            }
-
-            /* 💡 微調隔離膜：比原本滿版稍微小一點點，讓夏以晝的比例在直式手機上最精緻 */
-            .doll-float-film {
-                width: 100vw !important;
-                height: 78dvh !important;
-            }
-
-            /* 微調滿版模式下的對話氣泡，往上推避開頭頂 */
-            .doll-speech-bubble {
-                top: -45px !important;
-                width: 75% !important;
-            }
-        }
-
-        /* 📟 平板橫屏 (835px ~ 1194px) 專屬防護網同步解鎖 */
-        @media screen and (min-width: 835px) and (max-width: 1194px) and (orientation: landscape) {
-            .mobile-switch-btn {
-                display: inline-flex !important;
-            }
-            body.show-pure-doll .phone-container {
-                opacity: 0 !important;
-                pointer-events: none !important;
-                transform: scale(0.5) !important;
-            }
-            body.show-pure-doll .doll-3d-container {
-                display: flex !important;
-                position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100vw !important;
-                height: 100dvh !important;
-                justify-content: center !important;
-                align-items: center !important;
-                flex-direction: column-reverse !important;
-                z-index: 500 !important;
-                transform: scale(1) !important;
-                left: 0 !important;
-                bottom: 0 !important;
-                opacity: 1 !important;
-                pointer-events: auto !important;
-            }
-        }
-
-
-
-
     </style>
 </head>
 
@@ -1560,14 +1111,7 @@
         <div id="musicToggleBtn" class="music-icon-btn">🔊</div>
     </div>
 
-
 <body>
-
-    <!-- 🌟 左右大小、寬高、尺寸與音樂盒完全一致的物理鎖定版 🌟 -->
-    <!-- ========================================================================= -->
-    <div id="mobileSwitchBtn" class="mobile-switch-btn">🧡 查看夏以晝</div>
-    <!-- ========================================================================= -->
-
 
 
         <!-- ================= 📦 左下角 3D 娃娃主結構 ================= -->
@@ -1609,7 +1153,7 @@
                 </model-viewer>
 
             </div>
-        </div>
+        </div
 
 
 
@@ -2392,43 +1936,59 @@
 
 
         // ============================================================
-        // 📱 核心新增：純淨安全重繪版「查看夏以晝 / 查看手機」雙向核心邏輯
+        // ⚡ 核心終極防線：密碼正確或網頁載入後，定時自動觸發一次 resize 
+        // 假裝使用者按了 F12，強行逼 3D 娃娃在別台電腦也 100% 刷新尺寸並顯形！
         // ============================================================
-        const mobileSwitchBtn = document.getElementById('mobileSwitchBtn');
+        window.addEventListener('load', function() {
+            // 在網頁完全載入後的 0.5 秒與 1.5 秒，主動各觸發一次視窗刷新訊號
+            setTimeout(function() {
+                window.dispatchEvent(new Event('resize'));
+                console.log("⚡ [尺寸防護牆] 已自動為娃娃刷新螢幕排版尺寸 (第一發)...");
+            }, 500);
 
-        if (mobileSwitchBtn) {
-            mobileSwitchBtn.addEventListener('click', function(e) {
-                e.stopPropagation(); // 防止點擊事件干擾到網頁其他元件
-                
-                // 幫 body 貼上/拔掉 狀態印章，觸發 CSS 的假手機淡出/娃娃現形
-                const isPureDollMode = document.body.classList.toggle('show-pure-doll');
+            setTimeout(function() {
+                window.dispatchEvent(new Event('resize'));
+                console.log("⚡ [尺寸防護牆] 已自動為娃娃刷新螢幕排版尺寸 (第二發)...");
+            }, 1500);
+        });
+
+
+        // ============================================================
+        // ⏳ 新增：3D 娃娃百分比下載進度即時計算器
+        // 專門傾聽 Google 3D 引擎的 progress 訊號，同步刷新網頁上的數字與線條長度
+        // ============================================================
+        (function() {
+            // 監聽網頁，直到 3D 娃娃組件在畫面上誕生
+            const checkViewerExist = setInterval(function() {
                 const avatar3D = document.getElementById('avatar3D');
+                if (avatar3D) {
+                    clearInterval(checkViewerExist); // 抓到娃娃了，停止計時器
 
-                if (isPureDollMode) {
-                    // 🔄 切換至 3D 娃娃模式
-                    mobileSwitchBtn.textContent = "📱 查看手機";
-                    console.log("⚡ [畫面切換] 已成功進入夏以晝滿版互動模式");
+                    // 綁定網頁上的文字與進度條本體
+                    const progressText = document.getElementById('dollProgressText');
+                    const progressBarFill = document.getElementById('dollProgressBarFill');
 
-                    // 💡 安全重繪：僅做單次官方平滑排版刷新，完全不影響加載
-                    if (avatar3D && typeof avatar3D.updateFraming === 'function') {
-                        setTimeout(function() {
-                            try {
-                                avatar3D.updateFraming();
-                            } catch (err) {
-                                console.log(err);
-                            }
-                        }, 100);
-                    }
+                    // 註冊進度條事件
+                    avatar3D.addEventListener('progress', function(event) {
+                        // event.detail.totalProgress 是 Google 算好的小數點（從 0.0 到 1.0）
+                        const progressRatio = event.detail.totalProgress;
+                        
+                        // 將小數點乘以 100 並四捨五入，換算成完美的整數百分比（例如 45）
+                        const percentage = Math.round(progressRatio * 100);
 
-                } else {
-                    // 🔄 切換回假手機畫面
-                    mobileSwitchBtn.textContent = "🧡 查看夏以晝";
-                    console.log("⚡ [畫面切換] 已成功返回擬真假手機主畫面");
+                        // 1. 即時動態刷新文字內容
+                        if (progressText) {
+                            progressText.textContent = "正在下載中... " + percentage + "%";
+                        }
+
+                        // 2. 即時動態控制進度條的百分比寬度，寬度會漂亮地往右滑動填滿
+                        if (progressBarFill) {
+                            progressBarFill.style.width = percentage + "%";
+                        }
+                    });
                 }
-            });
-        }
-
-
+            }, 100); // 每 0.1 秒偵測一次娃娃有沒有誕生
+        })();
 
 
     </script>
